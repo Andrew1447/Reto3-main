@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;bilboSKP/src/main/webapp/Compra.jsp&apos; to &apos;Registro-Compra.jsp&apos;" description="Rename resource &apos;Compra.jsp&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/webapp/Compra.jsp" name="Registro-Compra.jsp" stamp="1744827165737" updateReferences="true"/>
+</session>

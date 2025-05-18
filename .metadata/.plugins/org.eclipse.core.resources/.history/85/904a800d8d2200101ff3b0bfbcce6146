@@ -1,0 +1,59 @@
+package filter;
+
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@WebFilter("/*") // Aplica este filtro a todas las peticiones
+public class UserSessionFilter implements Filter {
+
+    public void init(FilterConfig fConfig) throws ServletException {
+        // No es necesario inicializar nada por ahora
+    }
+
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        HttpSession session = httpRequest.getSession(false); // No crear sesión si no existe
+
+        String nombreSesion = null;
+        String tipoUsuario = null;
+        Integer saldoCupones = null;
+
+        if (session != null) {
+            String loggedInUser = (String) session.getAttribute("loggedInUser");
+            String loggedInCentro = (String) session.getAttribute("loggedInCentro");
+            saldoCupones = (Integer) session.getAttribute("saldoCupones");
+
+            if (loggedInUser != null) {
+                nombreSesion = loggedInUser;
+                tipoUsuario = "usuario";
+            } else if (loggedInCentro != null) {
+                nombreSesion = loggedInCentro;
+                tipoUsuario = "centro";
+            }
+        }
+
+        // Hacer la información del usuario o centro disponible como atributo de la petición
+        httpRequest.setAttribute("nombreSesion", nombreSesion);
+        httpRequest.setAttribute("tipoUsuario", tipoUsuario);
+        httpRequest.setAttribute("saldoCupones", saldoCupones);
+
+        // Continuar con la cadena de filtros (permitir que la petición llegue al JSP)
+        chain.doFilter(request, response);
+    }
+
+    public void destroy() {
+        // No es necesario realizar ninguna limpieza por ahora
+    }
+}

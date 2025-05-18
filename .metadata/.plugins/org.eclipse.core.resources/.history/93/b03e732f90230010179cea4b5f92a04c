@@ -1,0 +1,229 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/Ayuda.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+    <div class="logo-container">
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png"></a>
+        
+        <div class="language-selector">
+                <a href="?lang=es" title="Español">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/1200px-Flag_of_Spain.svg.png" alt="Bandera de España">
+                </a>
+                <a href="?lang=en" title="English">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/1200px-Flag_of_the_United_Kingdom_%283-5%29.svg.png" alt="Bandera del Reino Unido">
+                </a>
+            </div>
+        </div>
+        
+    <nav>
+    
+        <a href="EscapeRooms.jsp">Jugar</a>
+        <a href="OrganizarPartida.jsp">Organizar Partida</a>
+        <a href="Packcupones.jsp">Comprar cupones</a>
+		<a href="DevolverCupones.jsp">Devolver cupones</a>
+        <a href="QuienesSomos.jsp">Quiénes Somos</a>
+        <a href="Ayuda.jsp">Ayuda</a>
+        
+        <%
+            Integer idRolUsuario = (Integer) request.getAttribute("idRol");
+            Integer idCentroSesion = (Integer) request.getAttribute("idCentroSesion");
+
+            // Mostrar "Registrar Centro" solo si el usuario no está logueado como centro
+            if (idCentroSesion == null && idRolUsuario != null && idRolUsuario.equals(2)) {
+        %>
+                <a href="CentroRegistro.jsp">Registrar Centro</a>
+        <%
+            }
+        %>
+    </nav>
+
+<div class="botones">
+    <%
+        String nombreSesion = (String) request.getAttribute("nombreSesion");
+        String tipoUsuario = (String) request.getAttribute("tipoUsuario");
+        Integer saldoCupones = (Integer) request.getAttribute("saldoCupones");
+
+        if (nombreSesion != null && !nombreSesion.isEmpty()) {
+            if (tipoUsuario != null && tipoUsuario.equals("usuario")) {
+    %>
+                <span class="nombre-usuario">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutServlet'">Cerrar Sesión</button>
+    <%
+            } else if (tipoUsuario != null && tipoUsuario.equals("centro")) {
+    %>
+                <span class="nombre-centro">Bienvenido, <%= nombreSesion %></span>
+                <button onclick="window.location.href='LogoutCentroServlet'">Cerrar Sesión</button>
+    <%
+            }
+        } else {
+    %>
+        <button class= "registrarse" onclick="window.location.href='Registrar.jsp'">Registrarse</button>
+        <button onclick="window.location.href='login.jsp'">Iniciar Sesion</button>
+    <%
+        }
+    %>
+</div>
+    </header>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Centro de Ayuda para Salas de Escape Online</h1>
+            <p>Encuentra respuestas a todas tus preguntas sobre nuestras salas de escape virtuales</p>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <main class="containera">
+        <!-- Getting Started Section -->
+        <section class="help-section">
+            <h2 class="section-title">Primeros Pasos</h2>
+            
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-img">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233498db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M8 14s1.5 2 4 2 4-2 4-2'/><line x1='9' y1='9' x2='9.01' y2='9'/><line x1='15' y1='9' x2='15.01' y2='9'/></svg>" alt="Cómo Funciona">
+                    </div>
+                    <div class="card-content">
+                        <h3>Cómo Funcionan las Salas Online</h3>
+                        <p>Descubre cómo funcionan nuestras salas de escape virtuales y cómo puedes disfrutar de la experiencia desde casa.</p>
+                        <a href="mailto:skpbilbo@gmail.com" class="btn btn-outline">Preguntanos</a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-img">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233498db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M23 21v-2a4 4 0 0 0-3-3.87'/><path d='M16 3.13a4 4 0 0 1 0 7.75'/></svg>" alt="Crear Equipo">
+                    </div>
+                    <div class="card-content">
+                        <h3>Crear y Unirse a un Equipo</h3>
+                        <p>Aprende a crear un equipo e invitar a tus amigos para jugar juntos en nuestras salas de escape virtuales.</p>
+                        <a href="mailto:skpbilbo@gmail.com" class="btn btn-outline">Preguntanos</a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-img">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233498db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='3' width='20' height='14' rx='2' ry='2'/><line x1='8' y1='21' x2='16' y2='21'/><line x1='12' y1='17' x2='12' y2='21'/></svg>" alt="Requisitos Técnicos">
+                    </div>
+                    <div class="card-content">
+                        <h3>Requisitos Técnicos</h3>
+                        <p>Conoce los requisitos técnicos necesarios para disfrutar de la mejor experiencia en nuestras salas virtuales.</p>
+                        <a href="mailto:skpbilbo@gmail.com" class="btn btn-outline">Preguntanos</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Tips and Tricks Section -->
+        <section class="help-section">
+            <h2 class="section-title">Consejos y Trucos</h2>
+            
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-img">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233498db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>" alt="Mejores Prácticas">
+                    </div>
+                    <div class="card-content">
+                        <h3>Mejores Prácticas</h3>
+                        <p>Consejos para mejorar tu experiencia y aumentar tus posibilidades de escapar con éxito.</p>
+                        <a href="mailto:skpbilbo@gmail.com" class="btn btn-outline">Preguntanos</a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-img">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233498db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3'/></svg>" alt="Comunicación Efectiva">
+                    </div>
+                    <div class="card-content">
+                        <h3>Comunicación Efectiva</h3>
+                        <p>Aprende a comunicarte eficazmente con tu equipo durante la experiencia de escape virtual.</p>
+                      	<a href="mailto:skpbilbo@gmail.com" class="btn btn-outline">Preguntanos</a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-img">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233498db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='12'/><line x1='12' y1='16' x2='12.01' y2='16'/></svg>" alt="Errores Comunes">
+                    </div>
+                    <div class="card-content">
+                        <h3>Errores Comunes a Evitar</h3>
+                        <p>Conoce los errores más comunes que cometen los jugadores y cómo evitarlos para mejorar tu experiencia.</p>
+                        <a href="mailto:skpbilbo@gmail.com" class="btn btn-outline">Preguntanos</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- FAQ Section -->
+        <section class="help-section">
+            <h2 class="section-title">Preguntas Frecuentes</h2>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">¿Cómo puedo reservar una sala de escape online?</div>
+                    <div class="faq-answer">Para reservar una sala de escape online, simplemente navega a la sección "Salas" en nuestro sitio web, selecciona la sala que te interese, elige la fecha y hora que prefieras, y completa el proceso de pago. Recibirás un correo electrónico con los detalles de tu reserva y las instrucciones para acceder a la sala virtual.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">¿Cuántas personas pueden participar en una sala virtual?</div>
+                    <div class="faq-answer">El número de participantes varía según la sala, pero generalmente nuestras salas virtuales están diseñadas para equipos de 2 a 6 jugadores. Algunas salas especiales pueden admitir hasta 8 jugadores. La información específica sobre el número de participantes se indica en la descripción de cada sala.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">¿Qué sucede si tengo problemas técnicos durante el juego?</div>
+                    <div class="faq-answer">Si experimentas problemas técnicos durante el juego, puedes utilizar la función de chat de soporte disponible en la interfaz del juego. Nuestro equipo técnico está disponible durante todas las sesiones para ayudarte a resolver cualquier inconveniente. También puedes contactarnos por teléfono al número que aparece en tu correo de confirmación.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">¿Necesito descargar algún software especial?</div>
+                    <div class="faq-answer">No es necesario descargar ningún software especial para participar en nuestras salas de escape virtuales. Todo funciona directamente en tu navegador web. Sin embargo, recomendamos utilizar navegadores actualizados como Chrome, Firefox, Edge o Safari para una mejor experiencia. También sugerimos tener una conexión a Internet estable.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">¿Puedo solicitar pistas durante el juego?</div>
+                    <div class="faq-answer">¡Sí! Todas nuestras salas de escape virtuales incluyen un sistema de pistas. Si tu equipo se queda atascado, pueden solicitar pistas a través de la interfaz del juego. Nuestro Game Master estará monitoreando tu progreso y proporcionará pistas relevantes para ayudarte a avanzar sin revelar demasiado.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BilboSKP</h3>
+                    <p>La mejor plataforma de escape rooms en Bilbao. Vive la aventura con nosotros.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="Index.jsp">Inicio</a></li>
+                        <li><a href="QuienesSomos.jsp">Quiénes Somos</a></li>
+                        <li><a href="EscapeRooms.jsp">Salas de Escape</a></li>
+                        <li><a href="Ayuda.jsp">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li>Email: skpbilbo@gmail.com</li>
+                        <li>Dirección: Calle Principal 123, Bilbao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BilboSKP. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

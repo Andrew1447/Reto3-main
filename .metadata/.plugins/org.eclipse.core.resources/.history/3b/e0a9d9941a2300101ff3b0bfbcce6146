@@ -1,0 +1,88 @@
+package controller;
+
+import dao.AccesoBD;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.mindrot.jbcrypt.BCrypt;
+
+@WebServlet("/guardarUsuario")
+public class RegisterUsuarioController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private static final int ID_ROL_USUARIO = 1;
+    private static final int SALDO_CUPONES_INICIAL = 1;
+    private static final int ID_TIPO_SUSCRIPCION_DEFAULT = 1;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String nombre = request.getParameter("nombre");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+        Connection connection = null;
+        PreparedStatement preparedStatementUsuario = null;
+        PreparedStatement preparedStatementSuscripcion = null;
+
+        try {
+            connection = AccesoBD.getConnection();
+            connection.setAutoCommit(false);
+
+            // 1. Insertar el nuevo usuario
+            String sqlUsuario = "INSERT INTO usuario (usuario, correo, contrasena, id_rol, saldo_cupones) VALUES (?, ?, ?, ?, ?)";
+            preparedStatementUsuario = connection.prepareStatement(sqlUsuario);
+            preparedStatementUsuario.setString(1, nombre);
+            preparedStatementUsuario.setString(2, email);
+            preparedStatementUsuario.setString(3, hashedPassword);
+            preparedStatementUsuario.setInt(4, ID_ROL_USUARIO);
+            preparedStatementUsuario.setInt(5, SALDO_CUPONES_INICIAL);
+
+            int filasUsuario = preparedStatementUsuario.executeUpdate();
+
+            if (filasUsuario > 0) {
+                // 2. Insertar en suscripcion con el usuario_id (nombre)
+                String sqlSuscripcion = "INSERT INTO suscripcion (id_tipo_suscripcion, confirmada, usuario_id) VALUES (?, ?, ?)";
+                preparedStatementSuscripcion = connection.prepareStatement(sqlSuscripcion);
+                preparedStatementSuscripcion.setInt(1, ID_TIPO_SUSCRIPCION_DEFAULT);
+                preparedStatementSuscripcion.setInt(2, 1); // Confirmada
+                preparedStatementSuscripcion.setString(3, nombre); // usuario_id = nombre del usuario recién creado
+
+                int filasSuscripcion = preparedStatementSuscripcion.executeUpdate();
+
+                if (filasSuscripcion > 0) {
+                    connection.commit();
+                    response.sendRedirect("login.jsp?registroExitoso=true");
+                } else {
+                    connection.rollback();
+                    response.sendRedirect("Registrar.jsp?registroError=true&razon=suscripcion");
+                }
+            } else {
+                connection.rollback();
+                response.sendRedirect("Registrar.jsp?registroError=true&razon=usuario");
+            }
+
+        } catch (SQLException e) {
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+            response.sendRedirect("Registrar.jsp?errorDB=sql&message=" + errorMessage);
+        } finally {
+            AccesoBD.closeConnection(null, preparedStatementUsuario, null);
+            AccesoBD.closeConnection(null, preparedStatementSuscripcion, connection);
+        }
+    }
+}

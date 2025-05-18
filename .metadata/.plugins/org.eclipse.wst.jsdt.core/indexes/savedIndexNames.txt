@@ -1,0 +1,8 @@
+INDEX VERSION 1.4+D:\2\Reto3-main\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+4281539828.index
+387077046.index
+2933178615.index
+1792560012.index
+605483997.index
+492815333.index
+1236017811.index

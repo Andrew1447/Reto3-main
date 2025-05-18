@@ -1,0 +1,240 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - BilboSKP</title>
+<link rel="stylesheet" href="styles/style.css">
+<link rel="stylesheet" href="styles/login.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* Estilos adicionales para las pestañas */
+.tabs-list {
+    display: flex;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 1rem;
+}
+
+.tab-trigger {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-trigger:hover {
+    color: #5b5fb9;
+}
+
+.tab-trigger.active {
+    color: #5b5fb9;
+    border-bottom: 2px solid #5b5fb9;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.error-message {
+    color: red;
+    margin-top: 1rem;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+    <header>
+    <div class="logo-container">
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png"></a>
+
+        <div class="language-selector">
+                <a href="?lang=es" title="Español">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/1200px-Flag_of_Spain.svg.png" alt="Bandera de España">
+                </a>
+                <a href="?lang=en" title="English">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/1200px-Flag_of_the_United_Kingdom_%283-5%29.svg.png" alt="Bandera del Reino Unido">
+                </a>
+            </div>
+        </div>
+
+    <nav>
+        <a href="EscapeRooms.jsp">Jugar</a>
+        <a href="OrganizarPartida.jsp">Organizar Partida</a>
+        <%
+            String tipoUsuarioNav = (String) request.getAttribute("tipoUsuario");
+            if (tipoUsuarioNav != null && tipoUsuarioNav.equals("centro")) {
+        %>
+            <a href="SolicitarCupones.jsp">Solicitar cupones</a>
+        <%
+            } else {
+        %>
+            <a href="Packcupones.jsp">Comprar cupones</a>
+            <a href="DevolverCupones.jsp">Devolver cupones</a>
+        <%
+            }
+        %>
+        <a href="QuienesSomos.jsp">Quiénes Somos</a>
+        <a href="Ayuda.jsp">Ayuda</a>
+
+        <%
+            Integer idRolUsuarioNav = (Integer) request.getAttribute("idRol");
+            Integer idCentroSesionNav = (Integer) request.getAttribute("idCentroSesion");
+
+            // Mostrar "Registrar Centro" solo si el usuario no está logueado como centro y es un administrador (idRol 2)
+            if (idCentroSesionNav == null && idRolUsuarioNav != null && idRolUsuarioNav.equals(2)) {
+        %>
+            <a href="CentroRegistro.jsp">Registrar Centro</a>
+        <%
+            }
+        %>
+    </nav>
+
+<div class="botones">
+    <%
+        String nombreSesion = (String) request.getAttribute("nombreSesion");
+        String tipoUsuario = (String) request.getAttribute("tipoUsuario");
+        Integer saldoCupones = (Integer) request.getAttribute("saldoCupones");
+
+        if (nombreSesion != null && !nombreSesion.isEmpty()) {
+            if (tipoUsuario != null && tipoUsuario.equals("usuario")) {
+    %>
+                <span class="nombre-usuario">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutServlet'">Cerrar Sesión</button>
+    <%
+            } else if (tipoUsuario != null && tipoUsuario.equals("centro")) {
+    %>
+                <span class="nombre-centro">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutCentroServlet'">Cerrar Sesión</button>
+    <%
+            }
+        } else {
+    %>
+        <button class= "registrarse" onclick="window.location.href='Registrar.jsp'">Registrarse</button>
+        <button onclick="window.location.href='login.jsp'">Iniciar Sesion</button>
+    <%
+        }
+    %>
+</div>
+    </header>
+
+    <div class="container mx-auto flex items-center justify-center min-h-screen px-4">
+        <div class="card w-full max-w-md">
+            <div class="card-header space-y-1">
+                <h2 class="card-title text-2xl text-center">Iniciar Sesión</h2>
+                <p class="card-description text-center">Accede a tu cuenta para disfrutar de nuestras escape rooms</p>
+            </div>
+            <div class="card-content">
+                <div class="tabs">
+                    <div class="tabs-list">
+                        <button class="tab-trigger active" data-tab="user">Usuario</button>
+                        <button class="tab-trigger" data-tab="center">Centro Educativo</button>
+                    </div>
+
+                    <div class="tab-content active" id="user-tab">
+                        <form action="LoginServlet" method="post" class="space-y-4 mt-4">
+                            <div class="space-y-2">
+                                <label for="email" class="form-label">Correo Electrónico</label>
+                                <input id="email" type="email" name="email" class="form-input"
+                                    placeholder="correo@ejemplo.com" required>
+                            </div>
+                            <div class="space-y-2">
+                                <label for="password" class="form-label">Contraseña</label>
+                                <input id="password" type="password" name="password" class="form-input" required>
+                            </div>
+                            <button type="submit" class="btn w-full">Iniciar Sesión</button>
+                        </form>
+                    </div>
+
+                    <div class="tab-content" id="center-tab">
+                        <form action="LoginCentroServlet" method="post" class="space-y-4 mt-4">
+                            <div class="space-y-2">
+                                <label for="nombre_centro" class="form-label">Nombre del Centro</label>
+                                <input id="nombre_centro" class="form-input" name="centerName"
+                                    placeholder="IES Ejemplo" required>
+                            </div>
+                            <div class="space-y-2">
+                                <label for="cod_acceso" class="form-label">Código de Acceso</label>
+                                <input id="cod_acceso" type="password" name="accessCode"
+                                    class="form-input" required>
+                            </div>
+                            <button type="submit" class="btn w-full">Iniciar Sesión</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Mensaje de error -->
+                <% String errorMessage = (String) request.getAttribute("errorMessage");
+                   if (errorMessage != null && !errorMessage.isEmpty()) { %>
+                   <div class="error-message"><%= errorMessage %></div>
+                <% } %>
+            </div>
+
+            <div class="card-footer flex flex-col space-y-2">
+                <div class="text-sm text-center text-slate-500">
+                    ¿No tienes una cuenta? <a href="Registrar.jsp" class="text-slate-800 hover-underline"> Regístrate aquí </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BilboSKP</h3>
+                    <p>La mejor plataforma de escape rooms en Bilbao. Vive la aventura con nosotros.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="Index.jsp">Inicio</a></li>
+                        <li><a href="QuienesSomos.jsp">Quiénes Somos</a></li>
+                        <li><a href="EscapeRooms.jsp">Salas de Escape</a></li>
+                        <li><a href="Ayuda.jsp">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li>Email: skpbilbo@gmail.com</li>
+                        <li>Dirección: Calle Principal 123, Bilbao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BilboSKP. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabTriggers = document.querySelectorAll('.tab-trigger');
+            tabTriggers.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-trigger').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

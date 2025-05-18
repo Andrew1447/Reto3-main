@@ -1,0 +1,162 @@
+package controller;
+
+
+import java.io.IOException;
+
+import java.sql.Connection;
+
+import java.sql.DriverManager;
+
+import java.sql.PreparedStatement;
+
+import java.sql.ResultSet;
+
+import java.sql.SQLException;
+
+
+import javax.servlet.ServletException;
+
+import javax.servlet.annotation.WebServlet;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.servlet.http.HttpSession;
+
+
+@WebServlet("/ProcesarPagoServlet")
+
+public class ProcesarPago extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
+
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+
+        String nombreUsuario = (String) session.getAttribute("nombreUsuario");
+
+        String planNombre = request.getParameter("planNombre");
+
+        String planPrecio = request.getParameter("planPrecio");
+
+        int cantidadCupones = Integer.parseInt(request.getParameter("cantidadCupones"));
+
+
+        Connection connection = null;
+
+        PreparedStatement selectStatement = null;
+
+        PreparedStatement updateStatement = null;
+
+        ResultSet resultSet = null;
+
+
+        String jdbcUrl = "jdbc:mysql://localhost:3306/tu_base_de_datos?serverTimezone=UTC";
+
+        String dbUser = "tu_usuario";
+
+        String dbPassword = "tu_contraseña";
+
+
+        try {
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            connection = DriverManager.getConnection(jdbcUrl, dbUser, dbPassword);
+
+
+            if (nombreUsuario != null) {
+
+                // Obtener el saldo actual de cupones
+
+                String selectSQL = "SELECT saldo_cupones FROM usuarios WHERE nombre_usuario = ?";
+
+                selectStatement = connection.prepareStatement(selectSQL);
+
+                selectStatement.setString(1, nombreUsuario);
+
+                resultSet = selectStatement.executeQuery();
+
+
+                if (resultSet.next()) {
+
+                    int saldoActual = resultSet.getInt("saldo_cupones");
+
+                    int nuevoSaldo = saldoActual + cantidadCupones;
+
+
+                    // Actualizar el saldo de cupones
+
+                    String updateSQL = "UPDATE usuarios SET saldo_cupones = ? WHERE nombre_usuario = ?";
+
+                    updateStatement = connection.prepareStatement(updateSQL);
+
+                    updateStatement.setInt(1, nuevoSaldo);
+
+                    updateStatement.setString(2, nombreUsuario);
+
+                    int filasActualizadas = updateStatement.executeUpdate();
+
+
+                    if (filasActualizadas > 0) {
+
+                        // Redireccionar a una página de éxito
+
+                        response.sendRedirect("pago_exitoso.jsp");
+
+                    } else {
+
+                        // Redireccionar a una página de error
+
+                        response.sendRedirect("pago_fallido.jsp?error=actualizacion_saldo");
+
+                    }
+
+                } else {
+
+                    response.sendRedirect("pago_fallido.jsp?error=usuario_no_encontrado");
+
+                }
+
+            } else {
+
+                response.sendRedirect("login.jsp"); // O alguna página de autenticación
+
+            }
+
+
+        } catch (ClassNotFoundException e) {
+
+            e.printStackTrace();
+
+            response.sendRedirect("pago_fallido.jsp?error=driver");
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            response.sendRedirect("pago_fallido.jsp?error=sql");
+
+        } finally {
+
+            // Cerrar recursos
+
+            try { if (resultSet != null) resultSet.close(); } catch (SQLException e) {}
+
+            try { if (selectStatement != null) selectStatement.close(); } catch (SQLException e) {}
+
+            try { if (updateStatement != null) updateStatement.close(); } catch (SQLException e) {}
+
+            try { if (connection != null) connection.close(); } catch (SQLException e) {}
+
+        }
+
+    }
+
+}
+

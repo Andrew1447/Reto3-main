@@ -1,0 +1,229 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Centro Educativo - BilboSKP</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <style>
+        /* styles/registrar-centro.css */
+
+        .form-container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 1em;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-input,
+        .form-select {
+            width: calc(100% - 20px);
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        .form-select {
+            appearance: none; /* Quitar estilos por defecto del navegador */
+            background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        .form-text {
+            display: block;
+            font-size: 0.85em;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .form-submit {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            display: block;
+            margin-top: 25px;
+        }
+
+        .form-submit:hover {
+            background-color: #0056b3;
+        }
+
+        .form-navigation {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .form-navigation a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .form-navigation a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background-color: #ffe0e0;
+            color: #ff0000;
+            border: 1px solid #ff0000;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .success-message {
+            background-color: #e0ffe0;
+            color: #008000;
+            border: 1px solid #008000;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png" alt="BilboSKP Logo"></a>
+        </div>
+        <nav>
+            <a href="QuienesSomos.jsp">Quiénes Somos</a>
+            <a href="Ayuda.jsp">Ayuda</a>
+            <a href="EscapeRooms.jsp">Nuestros Escape Rooms</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h2 class="form-title">Registrar Centro Educativo</h2>
+            <form action="ProcesarRegistroCentroServlet" method="post">
+                <%
+                    String error = (String) request.getAttribute("error");
+                    if (error != null && !error.isEmpty()) {
+                %>
+                    <div class="error-message">
+                        <%= error %>
+                    </div>
+                <%
+                    }
+                %>
+                <div class="form-group">
+                    <label for="nombre_centro" class="form-label">Nombre del Centro:</label>
+                    <input type="text" id="nombre_centro" name="nombre_centro" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="num_alumnos" class="form-label">Número de Alumnos:</label>
+                    <input type="number" id="num_alumnos" name="num_alumnos" class="form-input" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="correo" class="form-label">Correo Electrónico:</label>
+                    <input type="email" id="correo" name="correo" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cod_acceso" class="form-label">Código de Acceso:</label>
+                    <input type="text" id="cod_acceso" name="cod_acceso" class="form-input" required>
+                    <small class="form-text">Este código será necesario para acceder a la plataforma.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_ciudad" class="form-label">Ciudad:</label>
+                    <select id="id_ciudad" name="id_ciudad" class="form-select" required>
+                        <option value="" disabled selected>Selecciona una ciudad</option>
+                        <option value="1">Madrid</option>
+                        <option value="2">Bilbao</option>
+                        <option value="3">Barcelona</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_suscripcion" class="form-label">Suscripción:</label>
+                    <select id="id_suscripcion" name="id_suscripcion" class="form-select" required>
+                        <option value="" disabled selected>Selecciona un tipo de suscripción</option>
+                        <option value="1">Básica</option>
+                        <option value="2">Premium</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="form-submit">Registrar Centro</button>
+            </form>
+            <div class="form-navigation">
+                <p>¿Ya tienes una cuenta? <a href="login_centro.jsp">Iniciar Sesión como Centro</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BilboSKP</h3>
+                    <p>La mejor plataforma de escape rooms en Bilbao. Vive la aventura con nosotros.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="Index.jsp">Inicio</a></li>
+                        <li><a href="QuienesSomos.jsp">Quiénes Somos</a></li>
+                        <li><a href="EscapeRooms.jsp">Salas de Escape</a></li>
+                        <li><a href="Ayuda.jsp">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li>Email: info@bilboskp.com</li>
+                        <li>Teléfono: +34 123 456 789</li>
+                        <li>Dirección: Calle Principal 123, Bilbao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BilboSKP. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devolución de Cupones - BilboSKP</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/Devolver.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<header>
+    <div class="logo-container">
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png" alt="BilboSKP Logo"></a>
+        <div class="language-selector">
+            <a href="?lang=es" title="Español">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/1200px-Flag_of_Spain.svg.png" alt="Bandera de España">
+            </a>
+            <a href="?lang=en" title="English">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/1200px-Flag_of_the_United_Kingdom_%283-5%29.svg.png" alt="Bandera del Reino Unido">
+            </a>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="form-container" id="form-devolucion">
+        <h2 class="form-title">Solicitud de Devolución de Cupones</h2>
+
+        <form id="devolucion-form">
+            <div class="form-group">
+                <label class="form-label" for="compra">Compra de Cupones</label>
+                <select class="form-select" id="compra" required>
+                    <option value="" disabled selected>Selecciona una compra</option>
+                    <!-- Aquí se insertan las opciones dinámicamente -->
+                    ${comprasCupones}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="cantidad">Cantidad de cupones a devolver</label>
+                <input type="number" class="form-input" id="cantidad" min="1" required>
+            </div>
+
+            <button type="submit" class="form-submit">Enviar solicitud de devolución</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

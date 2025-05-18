@@ -1,0 +1,233 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/QuienesSomos.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+    <div class="logo-container">
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png"></a>
+        
+        <div class="language-selector">
+                <a href="?lang=es" title="Español">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/1200px-Flag_of_Spain.svg.png" alt="Bandera de España">
+                </a>
+                <a href="?lang=en" title="English">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/1200px-Flag_of_the_United_Kingdom_%283-5%29.svg.png" alt="Bandera del Reino Unido">
+                </a>
+            </div>
+        </div>
+        
+    <nav>
+    
+        <a href="EscapeRooms.jsp">Jugar</a>
+        <a href="OrganizarPartida.jsp">Organizar Partida</a>
+        <a href="Packcupones.jsp">Comprar cupones</a>
+		<a href="DevolverCupones.jsp">Devolver cupones</a>
+        <a href="QuienesSomos.jsp">Quiénes Somos</a>
+        <a href="Ayuda.jsp">Ayuda</a>
+        
+        <%
+            Integer idRolUsuario = (Integer) request.getAttribute("idRol");
+            Integer idCentroSesion = (Integer) request.getAttribute("idCentroSesion");
+
+            // Mostrar "Registrar Centro" solo si el usuario no está logueado como centro
+            if (idCentroSesion == null && idRolUsuario != null && idRolUsuario.equals(2)) {
+        %>
+                <a href="CentroRegistro.jsp">Registrar Centro</a>
+        <%
+            }
+        %>
+    </nav>
+
+<div class="botones">
+    <%
+        String nombreSesion = (String) request.getAttribute("nombreSesion");
+        String tipoUsuario = (String) request.getAttribute("tipoUsuario");
+        Integer saldoCupones = (Integer) request.getAttribute("saldoCupones");
+
+        if (nombreSesion != null && !nombreSesion.isEmpty()) {
+            if (tipoUsuario != null && tipoUsuario.equals("usuario")) {
+    %>
+                <span class="nombre-usuario">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutServlet'">Cerrar Sesión</button>
+    <%
+            } else if (tipoUsuario != null && tipoUsuario.equals("centro")) {
+    %>
+                <span class="nombre-centro">Bienvenido, <%= nombreSesion %></span>
+                <button onclick="window.location.href='LogoutCentroServlet'">Cerrar Sesión</button>
+    <%
+            }
+        } else {
+    %>
+        <button class= "registrarse" onclick="window.location.href='Registrar.jsp'">Registrarse</button>
+        <button onclick="window.location.href='login.jsp'">Iniciar Sesion</button>
+    <%
+        }
+    %>
+</div>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="containerq">
+                <h2>Quiénes Somos</h2>
+                <p class="subtitle">Descubre la historia detrás de BilboSKP</p>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <div class="containerq">
+                <div class="about-block">
+                    <h3>Nuestra Historia</h3>
+                    <p>BilboSKP nació en 2015 en el corazón de Bilbao con una misión clara: transformar el concepto de ocio y entretenimiento a través de experiencias inmersivas únicas. Fundada por un grupo de entusiastas de los juegos de ingenio y las aventuras, nuestra empresa ha crecido hasta convertirse en un referente de los escape rooms en el País Vasco.</p>
+                    
+                    <p>Lo que comenzó como una pequeña sala en el Casco Viejo de Bilbao se ha expandido a múltiples ubicaciones, manteniendo siempre nuestra sede central en la ciudad que nos vio nacer.</p>
+                </div>
+
+                <div class="about-block">
+                    <h3>Nuestra Misión</h3>
+                    <p>En BilboSKP creemos que el entretenimiento puede ser mucho más que pasar el tiempo. Buscamos crear experiencias memorables que fomenten el trabajo en equipo, la resolución de problemas y la creatividad, todo mientras nuestros participantes se sumergen en historias fascinantes.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-image-section">
+            <div class="containerq">
+                <img src="img/Gemini11.jpg?height=400&width=800" alt="Oficina central de BilboSKP en Bilbao" class="rounded-image">
+            </div>
+        </section>
+
+        <section class="values-section">
+            <div class="containerq">
+                <h3 class="section-title">Nuestros Valores</h3>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <div class="value-icon">🧩</div>
+                        <h4>Innovación</h4>
+                        <p>Constantemente desarrollamos nuevos enigmas y tecnologías para ofrecer experiencias únicas.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">🤝</div>
+                        <h4>Trabajo en equipo</h4>
+                        <p>Creemos en el poder de la colaboración para superar desafíos y crear momentos inolvidables.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">🌍</div>
+                        <h4>Sostenibilidad</h4>
+                        <p>Nos comprometemos con prácticas responsables con el medio ambiente en todas nuestras operaciones.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">🔍</div>
+                        <h4>Calidad</h4>
+                        <p>Cuidamos cada detalle para garantizar la mejor experiencia posible a nuestros visitantes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="team-section">
+            <div class="containerq">
+                <h3 class="section-title">Nuestro Equipo</h3>
+                <p class="section-subtitle">Conoce a las mentes creativas detrás de BilboSKP</p>
+                
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="member-image">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=200" alt="Mikel Etxebarria - Fundador y Director" class="rounded-image">
+                        </div>
+                        <h4>Mikel Etxebarria</h4>
+                        <p class="member-role">Fundador y Director</p>
+                        <p>Apasionado de los enigmas y con experiencia en diseño de juegos, Mikel fundó BilboSKP con la visión de crear experiencias inmersivas únicas.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-image">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=200" alt="Ane Zubieta - Directora Creativa" class="rounded-image">
+                        </div>
+                        <h4>Ane Zubieta</h4>
+                        <p class="member-role">Directora Creativa</p>
+                        <p>Con formación en bellas artes y narrativa, Ane es la mente detrás de las historias y ambientaciones que dan vida a nuestros escape rooms.</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-image">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=200&width=200" alt="Jon Urrutia - Director Técnico" class="rounded-image">
+                        </div>
+                        <h4>Jon Urrutia</h4>
+                        <p class="member-role">Director Técnico</p>
+                        <p>Ingeniero electrónico especializado en sistemas interactivos, Jon desarrolla los mecanismos y tecnologías que hacen posibles nuestros desafíos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="location-section">
+            <div class="containerq">
+                <h3 class="section-title">Nuestra Sede Central</h3>
+                <div class="location-grid">
+                    <div class="location-map">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d23247.63280585631!2d-2.9400369999999997!3d43.2630126!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd4e4e27664b89b9%3A0x6534acc41e95a645!2sBilbao%2C%20Vizcaya!5e0!3m2!1ses!2ses!4v1649252594777!5m2!1ses!2ses" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    <div class="location-info">
+                        <h4>BilboSKP - Oficina Central</h4>
+                        <p><strong>Dirección:</strong> Calle Alameda de Mazarredo, 65, 48009 Bilbao, Vizcaya</p>
+                        <p><strong>Teléfono:</strong> +34 944 123 456</p>
+                        <p><strong>Email:</strong> info@bilboskp.com</p>
+                        <p><strong>Horario de oficina:</strong></p>
+                        <ul>
+                            <li>Lunes a Viernes: 9:00 - 18:00</li>
+                            <li>Sábados: 10:00 - 14:00</li>
+                            <li>Domingos: Cerrado</li>
+                        </ul>
+                        <p class="note">* El horario de nuestros escape rooms puede variar. Consulta la disponibilidad en la sección de reservas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="containerq">
+                <h3>¿Listo para la aventura?</h3>
+                <p>Descubre nuestros escape rooms y vive una experiencia inolvidable</p>
+                <a href="EscapeRooms.jsp" class="btn btn-primary btn-large">Ver Escape Rooms</a>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BilboSKP</h3>
+                    <p>La mejor plataforma de escape rooms en Bilbao. Vive la aventura con nosotros.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="Index.jsp">Inicio</a></li>
+                        <li><a href="QuienesSomos.jsp">Quiénes Somos</a></li>
+                        <li><a href="EscapeRooms.jsp">Salas de Escape</a></li>
+                        <li><a href="Ayuda.jsp">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li>Email: info@bilboskp.com</li>
+                        <li>Dirección: Calle Principal 123, Bilbao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BilboSKP. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    
+</body>
+</html>

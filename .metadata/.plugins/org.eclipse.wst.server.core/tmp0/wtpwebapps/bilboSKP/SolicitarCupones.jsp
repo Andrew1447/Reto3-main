@@ -1,0 +1,242 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Cupones</title>
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/Index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos específicos para esta página */
+        .solicitar-cupones {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .styled-form {
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .submit-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+
+        .info-box {
+            padding: 15px;
+            background-color: #e9f7f1;
+            border: 1px solid #bce2d6;
+            border-radius: 6px;
+            color: #38761d;
+            text-align: center;
+        }
+
+        .info-box p {
+            margin: 0;
+        }
+
+        .success-message {
+            color: green;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .error-message {
+            color: red;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+    <div class="logo-container">
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png"></a>
+
+        <div class="language-selector">
+                <a href="?lang=es" title="Español">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/1200px-Flag_of_Spain.svg.png" alt="Bandera de España">
+                </a>
+                <a href="?lang=en" title="English">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/1200px-Flag_of_the_United_Kingdom_%283-5%29.svg.png" alt="Bandera del Reino Unido">
+                </a>
+            </div>
+        </div>
+
+    <nav>
+        <a href="EscapeRooms.jsp">Jugar</a>
+        <a href="OrganizarPartida.jsp">Organizar Partida</a>
+        <%
+            String tipoUsuarioNav = (String) request.getAttribute("tipoUsuario");
+            if (tipoUsuarioNav != null && tipoUsuarioNav.equals("centro")) {
+        %>
+            <a href="SolicitarCupones.jsp">Solicitar cupones</a>
+        <%
+            } else {
+        %>
+            <a href="Packcupones.jsp">Comprar cupones</a>
+            <a href="DevolverCupones.jsp">Devolver cupones</a>
+        <%
+            }
+        %>
+        <a href="QuienesSomos.jsp">Quiénes Somos</a>
+        <a href="Ayuda.jsp">Ayuda</a>
+
+        <%
+            Integer idRolUsuarioNav = (Integer) request.getAttribute("idRol");
+            Integer idCentroSesionNav = (Integer) request.getAttribute("idCentroSesion");
+
+            // Mostrar "Registrar Centro" solo si el usuario no está logueado como centro y es un administrador (idRol 2)
+            if (idCentroSesionNav == null && idRolUsuarioNav != null && idRolUsuarioNav.equals(2)) {
+        %>
+            <a href="CentroRegistro.jsp">Registrar Centro</a>
+        <%
+            }
+        %>
+    </nav>
+
+<div class="botones">
+    <%
+        String nombreSesion = (String) request.getAttribute("nombreSesion");
+        String tipoUsuario = (String) request.getAttribute("tipoUsuario");
+        Integer saldoCupones = (Integer) request.getAttribute("saldoCupones");
+
+        if (nombreSesion != null && !nombreSesion.isEmpty()) {
+            if (tipoUsuario != null && tipoUsuario.equals("usuario")) {
+    %>
+                <span class="nombre-usuario">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutServlet'">Cerrar Sesión</button>
+    <%
+            } else if (tipoUsuario != null && tipoUsuario.equals("centro")) {
+    %>
+                <span class="nombre-centro">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutCentroServlet'">Cerrar Sesión</button>
+    <%
+            }
+        } else {
+    %>
+        <button class= "registrarse" onclick="window.location.href='Registrar.jsp'">Registrarse</button>
+        <button onclick="window.location.href='login.jsp'">Iniciar Sesion</button>
+    <%
+        }
+    %>
+</div>
+    </header>
+
+    <div class="container">
+        <section class="solicitar-cupones">
+            <h2 class="section-title">Solicitud de Cupones</h2>
+            <p class="section-subtitle">Por favor, indica la cantidad de cupones que deseas solicitar.</p>
+            <div class="form-container">
+                <form action="ProcesarSolicitudCuponesServlet" method="post" class="styled-form">
+                    <div class="form-group">
+                        <label for="cantidadCupones">Cantidad de Cupones:</label>
+                        <input type="number" id="cantidadCupones" name="cantidadCupones" min="1" required>
+                    </div>
+                    <button type="submit" class="submit-button">Enviar Solicitud</button>
+                </form>
+                <div class="info-box">
+                    <p>Una vez enviada tu solicitud, será revisada por el administrador. Te notificaremos sobre el estado de tu solicitud a la brevedad.</p>
+                </div>
+            </div>
+
+            <% if (request.getAttribute("mensaje") != null) { %>
+                <div class="success-message"><%= request.getAttribute("mensaje") %></div>
+            <% } %>
+            <% if (request.getAttribute("error") != null) { %>
+                <div class="error-message"><%= request.getAttribute("error") %></div>
+            <% } %>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BilboSKP</h3>
+                    <p>La mejor plataforma de escape rooms en Bilbao. Vive la aventura con nosotros.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="Index.jsp">Inicio</a></li>
+                        <li><a href="QuienesSomos.jsp">Quiénes Somos</a></li>
+                        <li><a href="EscapeRooms.jsp">Salas de Escape</a></li>
+                        <li><a href="Ayuda.jsp">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li>Email: skpbilbo@gmail.com</li>
+                        <li>Dirección: Calle Principal 123, Bilbao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BilboSKP. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/EditarPartida.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <title>Editar partida</title>
+</head>
+<body>
+<header>
+    <div class="logo-container">
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png"></a>
+        
+        <div class="language-selector">
+                <a href="?lang=es" title="Español">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/1200px-Flag_of_Spain.svg.png" alt="Bandera de España">
+                </a>
+                <a href="?lang=en" title="English">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/1200px-Flag_of_the_United_Kingdom_%283-5%29.svg.png" alt="Bandera del Reino Unido">
+                </a>
+            </div>
+        </div>
+        
+    <nav>
+    
+        <a href="EscapeRooms.jsp">Jugar</a>
+        <a href="OrganizarPartida.jsp">Organizar Partida</a>
+        <a href="Packcupones.jsp">Comprar cupones</a>
+		<a href="DevolverCupones.jsp">Devolver cupones</a>
+        <a href="QuienesSomos.jsp">Quiénes Somos</a>
+        <a href="Ayuda.jsp">Ayuda</a>
+        
+        <%
+            Integer idRolUsuario = (Integer) request.getAttribute("idRol");
+            Integer idCentroSesion = (Integer) request.getAttribute("idCentroSesion");
+
+            // Mostrar "Registrar Centro" solo si el usuario no está logueado como centro
+            if (idCentroSesion == null && idRolUsuario != null && idRolUsuario.equals(2)) {
+        %>
+                <a href="CentroRegistro.jsp">Registrar Centro</a>
+        <%
+            }
+        %>
+    </nav>
+
+<div class="botones">
+    <%
+        String nombreSesion = (String) request.getAttribute("nombreSesion");
+        String tipoUsuario = (String) request.getAttribute("tipoUsuario");
+        Integer saldoCupones = (Integer) request.getAttribute("saldoCupones");
+
+        if (nombreSesion != null && !nombreSesion.isEmpty()) {
+            if (tipoUsuario != null && tipoUsuario.equals("usuario")) {
+    %>
+                <span class="nombre-usuario">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutServlet'">Cerrar Sesión</button>
+    <%
+            } else if (tipoUsuario != null && tipoUsuario.equals("centro")) {
+    %>
+                <span class="nombre-centro">Bienvenido, <%= nombreSesion %></span>
+                <button onclick="window.location.href='LogoutCentroServlet'">Cerrar Sesión</button>
+    <%
+            }
+        } else {
+    %>
+        <button class= "registrarse" onclick="window.location.href='Registrar.jsp'">Registrarse</button>
+        <button onclick="window.location.href='login.jsp'">Iniciar Sesion</button>
+    <%
+        }
+    %>
+</div>
+    </header>
+    
+    <main>
+    <div class="card">
+      <div class="card-header">
+        <div class="dots">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        
+        <a href="OrganizarPartida.jsp" class="back-link">
+          <svg class="icon" viewBox="0 0 24 24">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Volver a partidas
+        </a>
+        
+        <h1 class="card-title">Editar partida</h1>
+      </div>
+      
+      <div class="form-container">
+        <form id="editar-partida-form">
+          <div class="form-group">
+            <label for="nombre">Nombre de la partida</label>
+            <input type="text" id="nombre" value="Torneo de Verano 2023">
+          </div>
+          
+          <div class="form-group">
+            <label for="numJugadores">Número de jugadores: <span id="jugadores-valor">16</span></label>
+            <div class="slider-container">
+              <input type="range" id="numJugadores" class="slider" min="2" max="200" value="16">
+            </div>
+            <div class="slider-value">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span id="jugadores-valor-icon">16</span>
+            </div>
+          </div>
+          
+          <div class="grid-2">
+            <div class="form-group">
+              <label for="fecha">Fecha de caducidad</label>
+              <div class="input-with-icon">
+                <svg class="icon input-icon" viewBox="0 0 24 24">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <input type="date" id="fecha" value="2023-08-30">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="hora">Hora de caducidad</label>
+              <div class="input-with-icon">
+                <svg class="icon input-icon" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <input type="time" id="hora" value="18:00">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="tipo">Tipo de partida</label>
+            <select id="tipo">
+              <option value="casual">Casual</option>
+              <option value="competitiva" selected>Competitiva</option>
+              <option value="amistosa">Amistosa</option>
+              <option value="torneo">Torneo</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="descripcion">Descripción (opcional)</label>
+            <textarea id="descripcion"></textarea>
+          </div>
+          
+          <div class="info-section">
+            <h3 class="info-title">Información adicional</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">Fecha de creación</div>
+                <div class="info-value">15/06/2023</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Creado por</div>
+                <div class="info-value">admin@bilboskp.com</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Última modificación</div>
+                <div class="info-value">20/06/2023</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Estado</div>
+                <div class="info-value">Activo</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="button-container">
+            <button type="button" class="secondary-button" id="cancelar-btn">Cancelar</button>
+            <button type="submit" class="primary-button">Guardar cambios</button>
+          </div>
+          
+          <div class="button-container" style="margin-top: 12px;">
+            <button type="button" class="danger-button" id="eliminar-btn">Eliminar partida</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    </main>
+  
+  <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BilboSKP</h3>
+                    <p>La mejor plataforma de escape rooms en Bilbao. Vive la aventura con nosotros.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="Index.jsp">Inicio</a></li>
+                        <li><a href="QuienesSomos.jsp">Quiénes Somos</a></li>
+                        <li><a href="EscapeRooms.jsp">Salas de Escape</a></li>
+                        <li><a href="Ayuda.jsp">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li>Email: skpbilbo@gmail.com</li>
+                        <li>Dirección: Calle Principal 123, Bilbao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BilboSKP. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+  <script>
+    // Script para actualizar el valor del slider
+    const sliderElement = document.getElementById('numJugadores');
+    const jugadoresValor = document.getElementById('jugadores-valor');
+    const jugadoresValorIcon = document.getElementById('jugadores-valor-icon');
+    
+    sliderElement.addEventListener('input', function() {
+      const value = this.value;
+      jugadoresValor.textContent = value;
+      jugadoresValorIcon.textContent = value;
+    });
+    
+    // Prevenir envío del formulario (para demostración)
+    document.getElementById('editar-partida-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Cambios guardados (demostración)');
+    });
+    
+    // Botón cancelar
+    document.getElementById('cancelar-btn').addEventListener('click', function() {
+      if (confirm('¿Estás seguro de que quieres cancelar la edición? Los cambios no guardados se perderán.')) {
+        // Redirigir a la página de partidas (para demostración)
+        alert('Edición cancelada (demostración)');
+      }
+    });
+    
+    // Botón eliminar
+    document.getElementById('eliminar-btn').addEventListener('click', function() {
+      if (confirm('¿Estás seguro de que quieres eliminar esta partida? Esta acción no se puede deshacer.')) {
+        // Eliminar partida (para demostración)
+        alert('Partida eliminada (demostración)');
+      }
+    });
+  </script>
+
+</body>
+</html>

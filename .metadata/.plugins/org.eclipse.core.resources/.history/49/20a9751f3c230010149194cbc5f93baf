@@ -1,0 +1,153 @@
+package controller;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Base64;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import dao.AccesoBD;
+
+@WebServlet("/ProcesarRegistroCentroServlet")
+public class ProcesarRegistroCentroServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hashBytes);
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("Error al hashear la contraseña: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String nombreCentro = request.getParameter("nombre_centro");
+        String numAlumnosStr = request.getParameter("num_alumnos");
+        String correo = request.getParameter("correo");
+        String codAcceso = request.getParameter("cod_acceso");
+        String idCiudadStr = request.getParameter("id_ciudad");
+        String idSuscripcionStr = request.getParameter("id_suscripcion");
+        String password = request.getParameter("password");
+
+        String errorMessage = null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        System.out.println("Procesando registro del centro:");
+        System.out.println("Nombre del Centro: " + nombreCentro);
+        System.out.println("Número de Alumnos (String): " + numAlumnosStr);
+        System.out.println("Correo: " + correo);
+        System.out.println("Código de Acceso: " + codAcceso);
+        System.out.println("ID Ciudad (String): " + idCiudadStr);
+        System.out.println("ID Suscripción (String): " + idSuscripcionStr);
+        System.out.println("Contraseña (sin hashear): " + password);
+
+        try {
+            // Validaciones
+            if (nombreCentro == null || nombreCentro.trim().isEmpty() ||
+                numAlumnosStr == null || numAlumnosStr.trim().isEmpty() ||
+                correo == null || correo.trim().isEmpty() ||
+                codAcceso == null || codAcceso.trim().isEmpty() ||
+                idCiudadStr == null || idCiudadStr.trim().isEmpty() ||
+                idSuscripcionStr == null || idSuscripcionStr.trim().isEmpty() ||
+                password == null || password.trim().isEmpty()) {
+                errorMessage = "Todos los campos son obligatorios.";
+                System.err.println("Error de validación: " + errorMessage);
+                request.setAttribute("error", errorMessage);
+                request.getRequestDispatcher("CentroRegistro.jsp").forward(request, response);
+                return;
+            }
+
+            int numAlumnos = 0;
+            int idCiudad = 0;
+            int idSuscripcion = 0;
+
+            try {
+                numAlumnos = Integer.parseInt(numAlumnosStr);
+                idCiudad = Integer.parseInt(idCiudadStr);
+                idSuscripcion = Integer.parseInt(idSuscripcionStr);
+                System.out.println("Número de Alumnos (int): " + numAlumnos);
+                System.out.println("ID Ciudad (int): " + idCiudad);
+                System.out.println("ID Suscripción (int): " + idSuscripcion);
+            } catch (NumberFormatException e) {
+                errorMessage = "Por favor, introduce valores numéricos válidos para el número de alumnos, la ciudad y la suscripción.";
+                System.err.println("Error de conversión numérica: " + errorMessage);
+                request.setAttribute("error", errorMessage);
+                request.getRequestDispatcher("CentroRegistro.jsp").forward(request, response);
+                return;
+            }
+
+            String hashedPassword = null;
+            hashedPassword = hashPassword(password);
+            if (hashedPassword == null) {
+                errorMessage = "Error al hashear la contraseña.";
+                System.err.println("Error al hashear la contraseña.");
+                request.setAttribute("error", errorMessage);
+                request.getRequestDispatcher("CentroRegistro.jsp").forward(request, response);
+                return;
+            } else {
+                System.out.println("Contraseña hasheada: " + hashedPassword);
+            }
+
+            connection = AccesoBD.getConnection();
+            if (connection != null) {
+                String sql = "INSERT INTO centro_educativo (nombre_centro, num_alumnos, correo, cod_acceso, id_ciudad, id_suscripcion, saldo_cupones, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, nombreCentro);
+                preparedStatement.setInt(2, numAlumnos);
+                preparedStatement.setString(3, correo);
+                preparedStatement.setString(4, codAcceso);
+                preparedStatement.setInt(5, idCiudad);
+                preparedStatement.setInt(6, idSuscripcion);
+                preparedStatement.setInt(7, numAlumnos); // Establecer saldo_cupones igual a num_alumnos
+                preparedStatement.setString(8, hashedPassword);
+
+                System.out.println("Ejecutando consulta SQL: " + sql);
+                int filasAfectadas = preparedStatement.executeUpdate();
+                System.out.println("Filas afectadas: " + filasAfectadas);
+
+                if (filasAfectadas > 0) {
+                    response.sendRedirect("Index.jsp?registro_centro_exito=true");
+                    System.out.println("Registro exitoso, redirigiendo a Index.jsp");
+                    return;
+                } else {
+                    errorMessage = "Error al registrar el centro educativo. Por favor, inténtalo de nuevo.";
+                    System.err.println("Error al registrar en la base de datos: " + errorMessage);
+                    request.setAttribute("error", errorMessage);
+                    request.getRequestDispatcher("CentroRegistro.jsp").forward(request, response);
+                    return;
+                }
+            } else {
+                errorMessage = "Error al conectar con la base de datos.";
+                System.err.println("Error al conectar con la base de datos: " + errorMessage);
+                request.setAttribute("error", errorMessage);
+                request.getRequestDispatcher("CentroRegistro.jsp").forward(request, response);
+                return;
+            }
+
+        } catch (SQLException e) {
+            errorMessage = "Error en la base de datos: " + e.getMessage();
+            System.err.println("Error de SQL: " + errorMessage);
+            e.printStackTrace();
+            request.setAttribute("error", errorMessage);
+            request.getRequestDispatcher("CentroRegistro.jsp").forward(request, response);
+            return;
+        } finally {
+            AccesoBD.closeConnection(null, preparedStatement, connection);
+            System.out.println("Conexión a la base de datos cerrada.");
+        }
+    }
+}

@@ -1,0 +1,82 @@
+package controller;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import dao.AccesoBD;
+
+/**
+ * Servlet implementation class LoginCentroServlet
+ */
+@WebServlet("/LoginCentroServlet")
+public class LoginCentroController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public LoginCentroController() {
+        super();
+    }
+
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String nombre_centro = request.getParameter("nombre_centro");
+        String password = request.getParameter("cod_acceso");
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = AccesoBD.getConnection();
+            if (connection != null) {
+                String sql = "SELECT nombre_centro, cod_acceso FROM centro_educativo WHERE nombre_centro = ?";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, nombre_centro);
+                preparedStatement.setString(2, cod_acceso);
+                resultSet = preparedStatement.executeQuery();
+
+                if (resultSet.next()) {
+                    String storedUsername = resultSet.getString("nombre_centro");
+                    String storedPassword = resultSet.getString("cod_acceso");
+
+                    
+                    if (password.equals(storedPassword)) {
+                        
+                        HttpSession session = request.getSession();
+                        session.setAttribute("loggedInUser", storedUsername);
+                        response.sendRedirect("entrada.jsp");
+                        return;
+                    }
+                }
+           
+                request.setAttribute("errorMessage", "<span style='color: red;'>Credenciales incorrectas.</span>");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+
+            } else {
+                request.setAttribute("errorMessage", "<span style='color: red;'>Error al conectar con la base de datos.</span>");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "<span style='color: red;'>Error al consultar con la base de datos.</span>");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+        } finally {
+            AccesoBD.closeConnection(resultSet, preparedStatement, connection);
+        }
+    }
+}

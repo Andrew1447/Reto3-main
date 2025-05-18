@@ -1,0 +1,116 @@
+package controller;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Base64;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import dao.AccesoBD;
+
+@WebServlet("/ProcesarRegistroCentroServlet")
+public class ProcesarRegistroCentroServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hashBytes);
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("Error al hashear la contraseña: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String nombreCentro = request.getParameter("nombre_centro");
+        String numAlumnosStr = request.getParameter("num_alumnos");
+        String correo = request.getParameter("correo");
+        String codAcceso = request.getParameter("cod_acceso");
+        String idCiudadStr = request.getParameter("id_ciudad");
+        String idSuscripcionStr = request.getParameter("id_suscripcion");
+        String password = request.getParameter("password");
+
+        String errorMessage = null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        boolean registroExitoso = false;
+
+        try {
+            // Validaciones
+            if (nombreCentro == null || nombreCentro.trim().isEmpty() || /* ... otras validaciones ... */ password == null || password.trim().isEmpty()) {
+                errorMessage = "Todos los campos son obligatorios.";
+            }
+
+            int numAlumnos = 0;
+            int idCiudad = 0;
+            int idSuscripcion = 0;
+
+            if (errorMessage == null) {
+                try {
+                    numAlumnos = Integer.parseInt(numAlumnosStr);
+                    idCiudad = Integer.parseInt(idCiudadStr);
+                    idSuscripcion = Integer.parseInt(idSuscripcionStr);
+                } catch (NumberFormatException e) {
+                    errorMessage = "Por favor, introduce valores numéricos válidos...";
+                }
+            }
+
+            String hashedPassword = null;
+            if (errorMessage == null) {
+                hashedPassword = hashPassword(password);
+                if (hashedPassword == null) {
+                    errorMessage = "Error al hashear la contraseña.";
+                }
+            }
+
+            if (errorMessage != null) {
+                request.setAttribute("error", errorMessage);
+                request.getRequestDispatcher("CentroRegistro.jsp").forward(request, response);
+                return;
+            }
+
+            connection = AccesoBD.getConnection();
+            if (connection != null) {
+                String sql = "INSERT INTO centro_educativo (...) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                preparedStatement = connection.prepareStatement(sql);
+                // Establecer parámetros
+                preparedStatement.setString(1, nombreCentro);
+                // ...
+                preparedStatement.setString(8, hashedPassword);
+
+                int filasAfectadas = preparedStatement.executeUpdate();
+                if (filasAfectadas > 0) {
+                    registroExitoso = true;
+                } else {
+                    errorMessage = "Error al registrar el centro educativo...";
+                }
+            } else {
+                errorMessage = "Error al conectar con la base de datos.";
+            }
+
+        } catch (SQLException e) {
+            errorMessage = "Error en la base de datos: " + e.getMessage();
+            e.printStackTrace();
+        } finally {
+            AccesoBD.closeConnection(null, preparedStatement, connection);
+            if (registroExitoso) {
+                response.sendRedirect("Index.jsp?registro_centro_exito=true");
+            } else if (errorMessage != null) {
+                request.setAttribute("error", errorMessage);
+                request.getRequestDispatcher("CentroRegistro.jsp").forward(request, response);
+            }
+        }
+    }
+}

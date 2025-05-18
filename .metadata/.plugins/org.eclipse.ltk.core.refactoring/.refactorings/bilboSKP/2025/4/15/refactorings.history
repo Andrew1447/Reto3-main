@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move &apos;LoginCentroController.java&apos; to &apos;controller&apos;" description="Move &apos;LoginCentroController.java&apos; to &apos;controller&apos;" destination="src/main/java/controller" element1="src/main/java/LoginCentroController.java" flags="7" id="org.eclipse.ltk.core.refactoring.move.resources" resources="1" stamp="1744197833464" updateReferences="true"/>
+</session>

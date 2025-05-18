@@ -1,0 +1,133 @@
+package controller;
+
+import dao.AccesoBD;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/ProcesarPagoServlet")
+public class ProcesarPago extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String nombreUsuario = (String) request.getAttribute("nombreSesion");
+        String cantidadCuponesStr = request.getParameter("cantidadCupones");
+        int cantidadCupones = 0;
+        String errorMessage = null;
+
+        if (cantidadCuponesStr != null && !cantidadCuponesStr.isEmpty()) {
+            try {
+                cantidadCupones = Integer.parseInt(cantidadCuponesStr);
+            } catch (NumberFormatException e) {
+                System.err.println("Error al convertir la cantidad de cupones: " + cantidadCuponesStr);
+                response.sendRedirect("pago_fallido_formato_cupones.jsp");
+                return;
+            }
+        } else {
+            System.err.println("No se recibió la cantidad de cupones.");
+            response.sendRedirect("pago_fallido_sin_cantidad_cupones.jsp");
+            return;
+        }
+
+        Connection connection = null;
+        PreparedStatement selectStatement = null;
+        PreparedStatement updateStatement = null;
+        PreparedStatement insertCuponStatement = null;
+        ResultSet resultSet = null;
+        ResultSet suscripcionResult = null;
+        PreparedStatement selectSuscripcionStatement = null;
+
+        try {
+            connection = AccesoBD.getConnection();
+
+            if (nombreUsuario != null) {
+                // Obtener el saldo actual de cupones
+                String selectSQL = "SELECT saldo_cupones FROM usuario WHERE usuario = ?";
+                selectStatement = connection.prepareStatement(selectSQL);
+                selectStatement.setString(1, nombreUsuario);
+                resultSet = selectStatement.executeQuery();
+
+                if (resultSet.next()) {
+                    int saldoActual = resultSet.getInt("saldo_cupones");
+                    int nuevoSaldo = saldoActual + cantidadCupones;
+
+                    // Actualizar el saldo de cupones en la tabla de usuario
+                    String updateSQL = "UPDATE usuario SET saldo_cupones = ? WHERE usuario = ?";
+                    updateStatement = connection.prepareStatement(updateSQL);
+                    updateStatement.setInt(1, nuevoSaldo);
+                    updateStatement.setString(2, nombreUsuario);
+                    int filasActualizadas = updateStatement.executeUpdate();
+
+                    if (filasActualizadas > 0) {
+                        // Obtener el id_suscripcion del usuario
+                        String selectSuscripcionSQL = "SELECT id_suscripcion FROM usuario WHERE usuario = ?";
+                        selectSuscripcionStatement = connection.prepareStatement(selectSuscripcionSQL);
+                        selectSuscripcionStatement.setString(1, nombreUsuario);
+                        suscripcionResult = selectSuscripcionStatement.executeQuery();
+                        int idSuscripcionUsuario = -1;
+                        if (suscripcionResult.next()) {
+                            idSuscripcionUsuario = suscripcionResult.getInt("id_suscripcion");
+
+                            // Insertar en la tabla 'cupon' para registrar cada cupón comprado
+                            String insertCuponSQL = "INSERT INTO cupon (id_cupon, id_suscripcion, fecha_compra, usuario) VALUES (?, ?, CURRENT_TIMESTAMP, ?)";
+                            insertCuponStatement = connection.prepareStatement(insertCuponSQL);
+
+                            // Iterar sobre la cantidad de cupones a insertar
+                            for (int i = 0; i < cantidadCupones; i++) {
+                                String idCupon = UUID.randomUUID().toString(); // Generar un UUID para id_cupon
+                                insertCuponStatement.setString(1, idCupon);
+                                insertCuponStatement.setInt(2, idSuscripcionUsuario); // Establecer el ID de la suscripción del usuario
+                                insertCuponStatement.setString(3, nombreUsuario); // Establecer el usuario
+                                insertCuponStatement.addBatch();
+                            }
+
+                            // Ejecutar el batch de inserciones
+                            int[] rowsInserted = insertCuponStatement.executeBatch();
+
+                            if (rowsInserted.length == cantidadCupones) {
+                                // Redirigir al inicio si todo fue exitoso
+                                response.sendRedirect("Index.jsp");
+                            } else {
+                                errorMessage = "Error al registrar algunos cupones en la base de datos.";
+                            }
+                        } else {
+                            errorMessage = "Error al obtener el ID de suscripción del usuario.";
+                        }
+                    } else {
+                        errorMessage = "Error al actualizar el saldo de cupones.";
+                    }
+                } else {
+                    errorMessage = "Usuario no encontrado.";
+                }
+            } else {
+                errorMessage = "Error: No se encontró nombreSesion en la request.";
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            errorMessage = "Error al acceder a la base de datos.";
+        } finally {
+            AccesoBD.closeResultSet(resultSet);
+            AccesoBD.closePreparedStatement(selectStatement);
+            AccesoBD.closePreparedStatement(updateStatement);
+            AccesoBD.closePreparedStatement(insertCuponStatement);
+            AccesoBD.closeResultSet(suscripcionResult);
+            AccesoBD.closePreparedStatement(selectSuscripcionStatement);
+            AccesoBD.closeConnection(connection);
+        }
+
+        // Si hubo un error, redirigir de vuelta a Pasarela.jsp con el mensaje de error
+        if (errorMessage != null) {
+            request.setAttribute("errorMessage", "<span style='color: red;'>" + errorMessage + "</span>");
+            request.getRequestDispatcher("Pasarela.jsp").forward(request, response);
+        }
+    }
+}

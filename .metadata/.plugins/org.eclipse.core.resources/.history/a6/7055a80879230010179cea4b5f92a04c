@@ -1,0 +1,67 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/OrganizarPartida.css">
+    <title>Organizar partida</title>
+</head>
+<body>
+<header>
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png"></a>
+    <nav>
+        <a href="QuienesSomos.jsp">Quiénes Somos</a>
+        <a href="Ayuda.jsp">Ayuda</a>
+        <a href="EscapeRooms.jsp">Nuestros Escape Rooms</a>
+    </nav>
+    
+<div class="botones"> 
+    <button class= "registrarse"onclick="window.location.href='Registrar.jsp'">Registrarse</button>
+    <button onclick="window.location.href='login.jsp'">Iniciar Sesion</button>
+   
+</div>
+    </header>
+    
+    <div class="container">
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        
+        <h1 class="title">Partidas organizadas:</h1>
+        
+        <button class="create-btn" onclick="window.location.href='OrgPartida.jsp'">+ CREATE</button>
+        
+        <ul class="partido-list">
+            <li class="partido-item">
+                partido 1
+                <div class="edit-icon">
+                    <svg  onclick="window.location.href='EditarPartida.jsp'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                </div>
+            </li>
+            <li class="partido-item">
+                partido 2
+                <div class="edit-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                </div>
+            </li>
+            <li class="partido-item">
+                partido 3
+                <div class="edit-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                </div>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

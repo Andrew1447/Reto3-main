@@ -1,0 +1,194 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - BilboSKP</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/Devolver.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<header>
+        <div class="logo-container">
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png" alt="BilboSKP Logo"></a>
+        
+        <div class="language-selector">
+                <a href="?lang=es" title="Español">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/1200px-Flag_of_Spain.svg.png" alt="Bandera de España">
+                </a>
+                <a href="?lang=en" title="English">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/1200px-Flag_of_the_United_Kingdom_%283-5%29.svg.png" alt="Bandera del Reino Unido">
+                </a>
+            </div>
+        </div>
+        <nav>
+            <a href="QuienesSomos.jsp">Quiénes Somos</a>
+            <a href="Ayuda.jsp">Ayuda</a>
+            <a href="EscapeRooms.jsp">Nuestros Escape Rooms</a>
+        </nav>
+    </header>
+    
+ <main>
+    
+    <div class="form-container" id="form-devolucion">
+      <h2 class="form-title">Solicitud de Devolución de Cupones</h2>
+      
+      <div class="info-box">
+        <div class="info-title">Información importante</div>
+        <div class="info-content">
+          <p>Para procesar tu solicitud de devolución, necesitamos verificar la información de tu compra. Asegúrate de tener a mano el número de referencia de tus cupones o el correo electrónico con el que realizaste la compra.</p>
+        </div>
+      </div>
+      
+      <form id="devolucion-form">
+        <div class="form-group">
+          <label class="form-label" for="tipo-devolucion">Tipo de devolución</label>
+          <select class="form-select" id="tipo-devolucion" required>
+            <option value="" disabled selected>Selecciona un tipo de devolución</option>
+            <option value="estandar">Devolución Estándar (85%)</option>
+            <option value="express">Devolución Express (75%)</option>
+            <option value="credito">Cambio por Crédito (100% + 10%)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="email">Correo electrónico</label>
+          <input type="email" class="form-input" id="email" placeholder="Correo con el que realizaste la compra" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="referencia">Número de referencia</label>
+          <input type="text" class="form-input" id="referencia" placeholder="Ej: BIL-2023-XXXXX">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="cantidad">Cantidad de cupones a devolver</label>
+          <input type="number" class="form-input" id="cantidad" min="1" max="100" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="fecha-compra">Fecha de compra</label>
+          <input type="date" class="form-input" id="fecha-compra" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="motivo">Motivo de la devolución</label>
+          <select class="form-select" id="motivo" required>
+            <option value="" disabled selected>Selecciona un motivo</option>
+            <option value="no-uso">No voy a utilizar los cupones</option>
+            <option value="error">Error en la compra</option>
+            <option value="insatisfaccion">Insatisfacción con el servicio</option>
+            <option value="otro">Otro motivo</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="comentarios">Comentarios adicionales</label>
+          <textarea class="form-textarea" id="comentarios" placeholder="Si tienes alguna información adicional que debamos conocer, escríbela aquí"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="metodo-reembolso">Método de reembolso preferido</label>
+          <select class="form-select" id="metodo-reembolso" required>
+            <option value="" disabled selected>Selecciona un método de reembolso</option>
+            <option value="original">Mismo método de pago original</option>
+            <option value="transferencia">Transferencia bancaria</option>
+            <option value="credito">Crédito en cuenta BilboSKP</option>
+          </select>
+        </div>
+        
+        <button type="submit" class="form-submit">Enviar solicitud de devolución</button>
+      </form>
+    </div>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BilboSKP</h3>
+                    <p>La mejor plataforma de escape rooms en Bilbao. Vive la aventura con nosotros.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="Index.jsp">Inicio</a></li>
+                        <li><a href="QuienesSomos.jsp">Quiénes Somos</a></li>
+                        <li><a href="EscapeRooms.jsp">Salas de Escape</a></li>
+                        <li><a href="Ayuda.jsp">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li>Email: info@bilboskp.com</li>
+                        <li>Teléfono: +34 123 456 789</li>
+                        <li>Dirección: Calle Principal 123, Bilbao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BilboSKP. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+  </main>
+
+  <script>
+    // Script para manejar la selección del tipo de devolución
+    document.getElementById('tipo-devolucion').addEventListener('change', function() {
+      const metodoReembolso = document.getElementById('metodo-reembolso');
+      
+      // Resetear opciones
+      metodoReembolso.innerHTML = '<option value="" disabled selected>Selecciona un método de reembolso</option>';
+      
+      // Añadir opciones según el tipo de devolución
+      if (this.value === 'estandar') {
+        metodoReembolso.innerHTML += '<option value="original">Mismo método de pago original</option>';
+        metodoReembolso.innerHTML += '<option value="transferencia">Transferencia bancaria</option>';
+        metodoReembolso.innerHTML += '<option value="credito">Crédito en cuenta BilboSKP</option>';
+      } else if (this.value === 'express') {
+        metodoReembolso.innerHTML += '<option value="transferencia">Transferencia bancaria</option>';
+        metodoReembolso.innerHTML += '<option value="credito">Crédito en cuenta BilboSKP</option>';
+      } else if (this.value === 'credito') {
+        metodoReembolso.innerHTML += '<option value="credito" selected>Crédito en cuenta BilboSKP</option>';
+      }
+    });
+    
+    // Prevenir envío del formulario (para demostración)
+    document.getElementById('devolucion-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Solicitud de devolución enviada correctamente. Recibirás un correo de confirmación en breve.');
+    });
+    
+    // Scroll suave al formulario cuando se hace clic en los botones
+    document.querySelectorAll('.option-button').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const formElement = document.querySelector(this.getAttribute('href'));
+        formElement.scrollIntoView({ behavior: 'smooth' });
+        
+        // Establecer el tipo de devolución según el botón pulsado
+        const tipoDevolucion = document.getElementById('tipo-devolucion');
+        if (this.textContent.includes('estándar')) {
+          tipoDevolucion.value = 'estandar';
+        } else if (this.textContent.includes('express')) {
+          tipoDevolucion.value = 'express';
+        } else if (this.textContent.includes('crédito')) {
+          tipoDevolucion.value = 'credito';
+        }
+        
+        // Disparar el evento change para actualizar el formulario
+        const event = new Event('change');
+        tipoDevolucion.dispatchEvent(event);
+      });
+    });
+  </script>
+
+
+</body>
+</html>

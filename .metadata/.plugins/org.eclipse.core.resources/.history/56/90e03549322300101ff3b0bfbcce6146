@@ -1,0 +1,137 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Devolución de Cupones</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #e74c3c;
+            background-color: #fdecea;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        button[type="submit"] {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #27ae60;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Devolución de Cupones</h1>
+
+    <c:if test="${not empty error}">
+        <div class="error">
+            <p>${error}</p>
+        </div>
+    </c:if>
+
+    <form action="ProcesarDevolucionServlet" method="post">
+        <table>
+            <thead>
+                <tr>
+                    <th>Seleccionar</th>
+                    <th>Usuario</th>
+                    <th>Fecha de Compra</th>
+                    <th>Cantidad</th>
+                    <th>Fecha de Reembolso</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach var="cupon" items="${listaDeCupones}">
+                    <c:if test="${empty cupon.fechaReembolso}">
+                        <tr>
+                            <td><input type="checkbox" name="cuponesSeleccionados" value="${cupon.fechaCompra}"></td>
+                            <td>${cupon.usuario}</td>
+                            <td>
+                                <fmt:formatDate value="${cupon.fechaCompra}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                            </td>
+                            <td>${cupon.cantidad}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${not empty cupon.fechaReembolso}">
+                                        <fmt:formatDate value="${cupon.fechaReembolso}" pattern="yyyy-MM-dd"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        Pendiente
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
+                    </c:if>
+                </c:forEach>
+            </tbody>
+        </table>
+        <br>
+        <input type="hidden" name="usuario" value="${usuarioLogueado}">
+        <button type="submit">Solicitar Devolución</button>
+    </form>
+
+    <a href="Index.jsp">Volver al Inicio</a>
+
+    <%-- Asegúrate de tener una lista de cupones en el scope de la request llamada 'listaDeCupones' --%>
+</body>
+</html>

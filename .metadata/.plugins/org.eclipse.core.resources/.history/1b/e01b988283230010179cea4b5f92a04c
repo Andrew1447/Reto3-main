@@ -1,0 +1,163 @@
+		.container {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .plans-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .plan-card {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .plan-card.featured {
+            transform: scale(1.10); /* Hace la tarjeta un poco más grande */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Resalta la sombra */
+            z-index: 1; /* Asegura que esté por encima de las otras tarjetas si se superponen */
+        }
+
+        .plan-header {
+            padding: 20px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .plan-header.basic {
+            background: linear-gradient(135deg, #4a3f9f, #7a70c4);
+        }
+
+        .plan-header.standard {
+            background: linear-gradient(135deg, #3f4a9f, #7076c4);
+            width: 100%
+        }
+
+        .plan-header.premium {
+            background: linear-gradient(135deg, #9f3f4a, #c47076);
+        }
+
+        .plan-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .feature-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .feature-value {
+            font-weight: 500;
+        }
+
+        .selected-plan {
+            position: relative;
+        }
+
+        .selected-plan::after {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 24px;
+            height: 24px;
+            background-color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a3f9f;
+            font-weight: bold;
+        }
+
+        .divider {
+            width: 100%;
+            height: 1px;
+            background-color: #eee;
+            margin: 10px 0;
+        }
+        .footer-text a {
+            color: #3f4a9f;
+            text-decoration: none;
+        }
+
+        .plan-button {
+            background-color: #3f4a9f;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .plan-button:hover {
+            background-color: #2c3363;
+        }
+
+        @media (max-width: 768px) {
+            .plans-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .plan-card {
+                max-width: 100%;
+            }
+        }
+        @media (min-width: 769px) {
+             .plan-header.standard {
+                width: 100%; /* O el ancho que prefieras para que ocupe más espacio */
+            }
+            .plans-container {
+                /* Ajusta el espacio entre las tarjetas cuando están en fila */
+                gap: 30px;
+            }
+        }

@@ -1,0 +1,76 @@
+package controller;
+
+import dao.AccesoBD;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/ProcesarPagoServlet")
+public class ProcesarPago extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Obtener el nombre de usuario desde el atributo (puesto por el filtro)
+        String nombreUsuario = (String) request.getAttribute("nombreSesion");
+
+        String planNombre = request.getParameter("planNombre");
+        String planPrecio = request.getParameter("planPrecio");
+        // **ASUMIENDO QUE SIEMPRE ES UNA COMPRA = UN CUPÓN**
+
+        Connection connection = null;
+        PreparedStatement insertCuponStatement = null;
+        ResultSet suscripcionResult = null;
+        PreparedStatement selectSuscripcionStatement = null;
+
+        try {
+            connection = AccesoBD.getConnection();
+
+            if (nombreUsuario != null) {
+                // Obtener el id_suscripcion del usuario
+                String selectSuscripcionSQL = "SELECT id_suscripcion FROM usuario WHERE usuario = ?";
+                selectSuscripcionStatement = connection.prepareStatement(selectSuscripcionSQL);
+                selectSuscripcionStatement.setString(1, nombreUsuario);
+                suscripcionResult = selectSuscripcionStatement.executeQuery();
+                int idSuscripcionUsuario = -1;
+                if (suscripcionResult.next()) {
+                    idSuscripcionUsuario = suscripcionResult.getInt("id_suscripcion");
+                    System.out.println("USUARIO: " + nombreUsuario + ", ID_SUSCRIPCION OBTENIDO: " + idSuscripcionUsuario); // LOGGING CRUCIAL
+
+                    // Insertar UN ÚNICO cupón en la tabla 'cupon'
+                    String insertCuponSQL = "INSERT INTO cupon (id_cupon, id_suscripcion, fecha_compra, usuario) VALUES (?, ?, CURRENT_TIMESTAMP, ?)";
+                    insertCuponStatement = connection.prepareStatement(insertCuponSQL);
+
+                    String idCupon = UUID.randomUUID().toString();
+                    insertCuponStatement.setString(1, idCupon);
+                    insertCuponStatement.setInt(2, idSuscripcionUsuario);
+                    insertCuponStatement.setString(3, nombreUsuario);
+                    insertCuponStatement.executeUpdate(); // Ejecutar la inserción DIRECTAMENTE
+
+                    response.sendRedirect("pago_exitoso.jsp");
+
+                } else {
+                    System.err.println("Error al obtener el ID de suscripción del usuario.");
+                    response.sendRedirect("pago_fallido_obtener_suscripcion.jsp");
+                }
+            } else {
+                System.err.println("Error: No se encontró nombreSesion en la request.");
+                response.sendRedirect("pago_fallido_error_sesion.jsp");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendRedirect("pago_fallido_error_sql.jsp");
+        } finally {
+            AccesoBD.closeConnection(suscripcionResult, selectSuscripcionStatement, connection);
+            try { if (insertCuponStatement != null) insertCuponStatement.close(); } catch (SQLException e) {}
+        }
+    }
+}

@@ -1,0 +1,93 @@
+package controller;
+
+import dao.AccesoBD;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/guardarUsuario")
+public class RegisterUsuarioController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private static final int ID_ROL_USUARIO = 1;
+    private static final int SALDO_CUPONES_INICIAL = 1;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String nombre = request.getParameter("nombre");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+
+        Connection connection = null;
+        PreparedStatement preparedStatementUsuario = null;
+        PreparedStatement preparedStatementSuscripcion = null;
+        ResultSet generatedKeys = null;
+        int idSuscripcion = -1; // Inicializar con un valor que indique que no se ha obtenido
+
+        try {
+            connection = AccesoBD.getConnection();
+            // Iniciar una transacción para asegurar la integridad de las operaciones
+            connection.setAutoCommit(false);
+
+            // 1. Insertar en la tabla suscripcion y obtener el ID generado
+            String sqlSuscripcion = "INSERT INTO suscripcion (confirmada) VALUES (?)";
+            preparedStatementSuscripcion = connection.prepareStatement(sqlSuscripcion, Statement.RETURN_GENERATED_KEYS);
+            preparedStatementSuscripcion.setInt(1, 1); // Establecer 'confirmada' a 1 (o el valor que necesites)
+            int filasAfectadasSuscripcion = preparedStatementSuscripcion.executeUpdate();
+
+            if (filasAfectadasSuscripcion > 0) {
+                generatedKeys = preparedStatementSuscripcion.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    idSuscripcion = generatedKeys.getInt(1); // Obtener el ID autogenerado
+                } else {
+                    throw new SQLException("No se pudo obtener el ID de suscripción generado.");
+                }
+            } else {
+                throw new SQLException("Error al insertar en la tabla suscripcion.");
+            }
+
+            // 2. Insertar en la tabla usuario utilizando el ID de suscripción obtenido
+            String sqlUsuario = "INSERT INTO usuario (usuario, correo, contrasena, id_rol, id_suscripcion, saldo_cupones) VALUES (?, ?, ?, ?, ?, ?)";
+            preparedStatementUsuario = connection.prepareStatement(sqlUsuario);
+            preparedStatementUsuario.setString(1, nombre);
+            preparedStatementUsuario.setString(2, email);
+            preparedStatementUsuario.setString(3, password);
+            preparedStatementUsuario.setInt(4, ID_ROL_USUARIO);
+            preparedStatementUsuario.setInt(5, idSuscripcion);
+            preparedStatementUsuario.setInt(6, SALDO_CUPONES_INICIAL);
+
+            int filasAfectadasUsuario = preparedStatementUsuario.executeUpdate();
+
+            if (filasAfectadasUsuario > 0) {
+                connection.commit(); // Confirmar la transacción si ambas inserciones fueron exitosas
+                response.sendRedirect("login.jsp?registroExitoso=true");
+            } else {
+                connection.rollback(); // Revertir la transacción si la inserción de usuario falló
+                response.sendRedirect("Registrar.jsp?registroError=true");
+            }
+
+        } catch (SQLException e) {
+            if (connection != null) {
+                try {
+                    connection.rollback(); // Revertir la transacción en caso de error
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+            response.sendRedirect("Registrar.jsp?errorDB=sql&message=" + errorMessage);
+        } finally {
+            AccesoBD.closeConnection(generatedKeys, preparedStatementUsuario, null);
+            AccesoBD.closeConnection(null, preparedStatementSuscripcion, connection);
+        }
+    }
+}

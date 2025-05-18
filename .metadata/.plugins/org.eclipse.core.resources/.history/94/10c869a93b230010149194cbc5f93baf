@@ -1,0 +1,79 @@
+package servlet;
+
+import dao.AccesoBD;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.codec.binary.Hex;
+
+@WebServlet("/ProcesarRegistroCentroServlet")
+public class ProcesarRegistroCentroServlet extends HttpServlet {
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String nombreCentro = request.getParameter("nombre_centro");
+        int numAlumnos = Integer.parseInt(request.getParameter("num_alumnos"));
+        String correo = request.getParameter("correo");
+        String codAcceso = request.getParameter("cod_acceso");
+        int idCiudad = Integer.parseInt(request.getParameter("id_ciudad"));
+        int idSuscripcion = Integer.parseInt(request.getParameter("id_suscripcion"));
+        int saldoCupones = numAlumnos; // Establecer saldo_cupones igual a num_alumnos
+
+        // Hash de la contraseña (ejemplo simple con SHA-256)
+        String hashedPassword = hashPassword(codAcceso);
+
+        Connection con = null;
+        PreparedStatement ps = null;
+
+        try {
+            con = AccesoBD.getConnection();
+            String sql = "INSERT INTO centro_educativo (nombre_centro, num_alumnos, correo, cod_acceso, id_ciudad, id_suscripcion, saldo_cupones) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            ps = con.prepareStatement(sql);
+            ps.setString(1, nombreCentro);
+            ps.setInt(2, numAlumnos);
+            ps.setString(3, correo);
+            ps.setString(4, hashedPassword); // Guardar la contraseña hasheada
+            ps.setInt(5, idCiudad);
+            ps.setInt(6, idSuscripcion);
+            ps.setInt(7, saldoCupones);
+
+            int filasAfectadas = ps.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                // Registro exitoso
+                request.setAttribute("registroExitoso", "El centro educativo se ha registrado correctamente.");
+            } else {
+                // Fallo en el registro
+                request.setAttribute("errorRegistro", "Hubo un error al registrar el centro educativo.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("errorRegistro", "Error de base de datos: " + e.getMessage());
+        } finally {
+            AccesoBD.closeConnection(null, ps, con);
+        }
+
+        // Redirigir a una página de confirmación o mostrar un mensaje en la misma página
+        request.getRequestDispatcher("registrar_centro.jsp").forward(request, response);
+    }
+
+    // Función para hashear la contraseña usando SHA-256
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            return Hex.encodeHexString(hashBytes);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null; // Manejar el error apropiadamente en producción
+        }
+    }
+}

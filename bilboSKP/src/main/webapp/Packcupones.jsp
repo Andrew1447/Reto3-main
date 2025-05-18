@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio</title>
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/login.css">
+    <link rel="stylesheet" href="styles/RegistrarSub.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+    <div class="logo-container">
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png"></a>
+
+        <div class="language-selector">
+                <a href="?lang=es" title="Español">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/1200px-Flag_of_Spain.svg.png" alt="Bandera de España">
+                </a>
+                <a href="?lang=en" title="English">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/1200px-Flag_of_the_United_Kingdom_%283-5%29.svg.png" alt="Bandera del Reino Unido">
+                </a>
+            </div>
+        </div>
+
+    <nav>
+        <a href="EscapeRooms.jsp">Jugar</a>
+        <a href="OrganizarPartida.jsp">Organizar Partida</a>
+        <%
+            String tipoUsuarioNav = (String) request.getAttribute("tipoUsuario");
+            if (tipoUsuarioNav != null && tipoUsuarioNav.equals("centro")) {
+        %>
+            <a href="SolicitarCupones.jsp">Solicitar cupones</a>
+        <%
+            } else {
+        %>
+            <a href="Packcupones.jsp">Comprar cupones</a>
+            <a href="DevolverCupones.jsp">Devolver cupones</a>
+        <%
+            }
+        %>
+        <a href="QuienesSomos.jsp">Quiénes Somos</a>
+        <a href="Ayuda.jsp">Ayuda</a>
+
+        <%
+            Integer idRolUsuarioNav = (Integer) request.getAttribute("idRol");
+            Integer idCentroSesionNav = (Integer) request.getAttribute("idCentroSesion");
+
+            // Mostrar "Registrar Centro" solo si el usuario no está logueado como centro y es un administrador (idRol 2)
+            if (idCentroSesionNav == null && idRolUsuarioNav != null && idRolUsuarioNav.equals(2)) {
+        %>
+            <a href="CentroRegistro.jsp">Registrar Centro</a>
+        <%
+            }
+        %>
+    </nav>
+
+<div class="botones">
+    <%
+        String nombreSesion = (String) request.getAttribute("nombreSesion");
+        String tipoUsuario = (String) request.getAttribute("tipoUsuario");
+        Integer saldoCupones = (Integer) request.getAttribute("saldoCupones");
+
+        if (nombreSesion != null && !nombreSesion.isEmpty()) {
+            if (tipoUsuario != null && tipoUsuario.equals("usuario")) {
+    %>
+                <span class="nombre-usuario">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutServlet'">Cerrar Sesión</button>
+    <%
+            } else if (tipoUsuario != null && tipoUsuario.equals("centro")) {
+    %>
+                <span class="nombre-centro">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutCentroServlet'">Cerrar Sesión</button>
+    <%
+            }
+        } else {
+    %>
+        <button class= "registrarse" onclick="window.location.href='Registrar.jsp'">Registrarse</button>
+        <button onclick="window.location.href='login.jsp'">Iniciar Sesion</button>
+    <%
+        }
+    %>
+</div>
+    </header>
+<div class="containerp">
+    <h1>Elige el plan ideal para ti</h1>
+
+    <div class="plans-container">
+        <div class="plan-card">
+            <div class="plan-header basic selected-plan">
+                <h2>Plan Simple</h2>
+                <p>Ideal para quienes se inician en la aventura.</p>
+            </div>
+            <div class="plan-content">
+                <div class="price">
+                    <p> 4$ = 5 Cupones</p>
+                </div>
+
+                
+                <a href="Pasarela.jsp?planNombre=Plan Simple&planPrecio=4$=5 Cupones&cantidadCuponesPlan=5" class="plan-button">Reservar con Plan Simple</a>
+            </div>
+        </div>
+
+        <div class="plan-card featured"> <div class="plan-header standard">
+            <h2>Plan Ahorro</h2>
+            <p>La mejor opción para disfrutar más por menos.</p>
+        </div>
+            <div class="plan-content">
+                <div class="price">
+                    <p>12$ = 15 Cupones</p>
+                </div>
+
+                
+                <a href="Pasarela.jsp?planNombre=Plan Ahorro&planPrecio=12$=15 Cupones&cantidadCuponesPlan=15" class="plan-button">Reservar con Plan Ahorro</a>
+            </div>
+        </div>
+
+        <div class="plan-card">
+            <div class="plan-header premium">
+                <h2>Plan Familiar</h2>
+                <p>Para vivir la aventura en grande con toda la familia o amigos.</p>
+            </div>
+            <div class="plan-content">
+                <div class="price">
+                    <p>10$ = 10 Cupones</p>
+                </div>
+
+                
+                <a href="Pasarela.jsp?planNombre=Plan Familiar&planPrecio=10$=10 Cupones&cantidadCuponesPlan=10" class="plan-button">Reservar con Plan Familiar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BilboSKP</h3>
+                    <p>La mejor plataforma de escape rooms en Bilbao. Vive la aventura con nosotros.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="Index.jsp">Inicio</a></li>
+                        <li><a href="QuienesSomos.jsp">Quiénes Somos</a></li>
+                        <li><a href="EscapeRooms.jsp">Salas de Escape</a></li>
+                        <li><a href="Ayuda.jsp">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li>Email: skpbilbo@gmail.com</li>
+                        <li>Dirección: Calle Principal 123, Bilbao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BilboSKP. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

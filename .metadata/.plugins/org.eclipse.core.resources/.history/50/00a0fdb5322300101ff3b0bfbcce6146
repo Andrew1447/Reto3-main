@@ -1,0 +1,132 @@
+package controller;
+
+import dao.AccesoBD;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+@WebServlet("/ProcesarDevolucionServlet")
+public class Devolucion extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String nombreUsuario = request.getParameter("usuario");
+        String[] cuponesSeleccionados = request.getParameterValues("cuponesSeleccionados");
+
+        Connection connection = null;
+        PreparedStatement updateUserSaldoStatement = null;
+        PreparedStatement selectCuponCantidadStatement = null;
+        PreparedStatement updateCuponStatement = null;
+
+        try {
+            connection = AccesoBD.getConnection();
+
+            if (nombreUsuario != null && cuponesSeleccionados != null && cuponesSeleccionados.length > 0) {
+                int cantidadTotalDevuelta = 0;
+
+                // Obtener la cantidad de cada cupón seleccionado
+                for (String fechaCompraStr : cuponesSeleccionados) {
+                    String selectCantidadSQL = "SELECT cantidad FROM cupon WHERE usuario = ? AND fecha_compra = ?";
+                    selectCuponCantidadStatement = connection.prepareStatement(selectCantidadSQL);
+                    selectCuponCantidadStatement.setString(1, nombreUsuario);
+
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        java.util.Date parsedDate = sdf.parse(fechaCompraStr);
+                        Timestamp timestamp = new Timestamp(parsedDate.getTime());
+                        selectCuponCantidadStatement.setTimestamp(2, timestamp);
+                        try (ResultSet rs = selectCuponCantidadStatement.executeQuery()) {
+                            if (rs.next()) {
+                                cantidadTotalDevuelta += rs.getInt("cantidad");
+                            }
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        // Manejar el error de parsing de fecha
+                        request.setAttribute("error", "Error: Formato de fecha incorrecto.");
+                        request.getRequestDispatcher("tu_pagina_de_devolucion.jsp").forward(request, response);
+                        return;
+                    }
+                }
+
+                // 1. Actualizar el saldo del usuario (restar la cantidad devuelta)
+                String updateUserSaldoSQL = "UPDATE usuario SET saldo_cupones = saldo_cupones - ? WHERE usuario = ?";
+                updateUserSaldoStatement = connection.prepareStatement(updateUserSaldoSQL);
+                updateUserSaldoStatement.setInt(1, cantidadTotalDevuelta);
+                updateUserSaldoStatement.setString(2, nombreUsuario);
+                int usuariosActualizados = updateUserSaldoStatement.executeUpdate();
+
+                if (usuariosActualizados > 0) {
+                    // 2. Actualizar la información de los cupones devueltos
+                    String updateCuponSQL = "UPDATE cupon SET cantidad = 0, fecha_reembolso = ?, reembolsado = 1 WHERE usuario = ? AND fecha_compra = ?";
+                    updateCuponStatement = connection.prepareStatement(updateCuponSQL);
+                    LocalDate fechaHoy = LocalDate.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    String fechaReembolsoStr = fechaHoy.format(formatter);
+
+                    int cuponesActualizados = 0;
+                    for (String fechaCompraStr : cuponesSeleccionados) {
+                        updateCuponStatement.setString(1, fechaReembolsoStr);
+                        updateCuponStatement.setString(2, nombreUsuario);
+                        try {
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            java.util.Date parsedDate = sdf.parse(fechaCompraStr);
+                            Timestamp timestamp = new Timestamp(parsedDate.getTime());
+                            updateCuponStatement.setTimestamp(3, timestamp);
+                            cuponesActualizados += updateCuponStatement.executeUpdate();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            // Manejar el error de parsing de fecha
+                            request.setAttribute("error", "Error: Formato de fecha incorrecto al actualizar los cupones.");
+                            request.getRequestDispatcher("tu_pagina_de_devolucion.jsp").forward(request, response);
+                            return;
+                        }
+                    }
+
+                    if (cuponesActualizados == cuponesSeleccionados.length) {
+                        response.sendRedirect("Index.jsp");
+                        return;
+                    } else {
+                        System.err.println("Error al actualizar todos los cupones para la devolución.");
+                        request.setAttribute("error", "Error al procesar la devolución de algunos cupones.");
+                        request.getRequestDispatcher("tu_pagina_de_devolucion.jsp").forward(request, response);
+                        return;
+                    }
+
+                } else {
+                    System.err.println("Error al actualizar el saldo del usuario.");
+                    request.setAttribute("error", "Error al actualizar el saldo del usuario.");
+                    request.getRequestDispatcher("tu_pagina_de_devolucion.jsp").forward(request, response);
+                    return;
+                }
+
+            } else {
+                System.err.println("No se recibió el usuario o los cupones seleccionados.");
+                request.setAttribute("error", "Error: No se recibieron los datos necesarios para la devolución.");
+                request.getRequestDispatcher("tu_pagina_de_devolucion.jsp").forward(request, response);
+                return;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Error de base de datos: " + e.getMessage());
+            request.getRequestDispatcher("tu_pagina_de_devolucion.jsp").forward(request, response);
+        } finally {
+            AccesoBD.closeConnection(null, updateUserSaldoStatement, connection);
+            try { if (selectCuponCantidadStatement != null) selectCuponCantidadStatement.close(); } catch (SQLException e) {}
+            try { if (updateCuponStatement != null) updateCuponStatement.close(); } catch (SQLException e) {}
+        }
+    }
+}

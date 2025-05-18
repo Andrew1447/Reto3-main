@@ -1,0 +1,95 @@
+package controller;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import dao.AccesoBD;
+
+@WebFilter("/*") // Aplica este filtro a todas las peticiones
+public class LoginUsuarioController implements Filter {
+
+    public void init(FilterConfig fConfig) throws ServletException {
+        // No es necesario inicializar nada por ahora
+    }
+
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        HttpSession session = httpRequest.getSession(false); // No crear sesión si no existe
+
+        String nombreSesion = null;
+        String tipoUsuario = null;
+        Integer saldoCupones = null;
+
+        if (session != null) {
+            String loggedInUser = (String) session.getAttribute("loggedInUser");
+            String loggedInCentro = (String) session.getAttribute("loggedInCentro");
+
+            if (loggedInUser != null) {
+                nombreSesion = loggedInUser;
+                tipoUsuario = "usuario";
+                // Obtener el saldo de cupones directamente de la base de datos
+                saldoCupones = obtenerSaldoCuponesUsuario(loggedInUser);
+            } else if (loggedInCentro != null) {
+                nombreSesion = loggedInCentro;
+                tipoUsuario = "centro";
+                // Aquí también podríamos obtener el saldo si los centros tuvieran cupones
+                saldoCupones = (Integer) session.getAttribute("saldoCupones"); // O similar si aplica
+            }
+        }
+
+        // Hacer la información del usuario o centro disponible como atributo de la petición
+        httpRequest.setAttribute("nombreSesion", nombreSesion);
+        httpRequest.setAttribute("tipoUsuario", tipoUsuario);
+        httpRequest.setAttribute("saldoCupones", saldoCupones);
+        System.out.println("Saldo de cupones puesto como atributo: " + httpRequest.getAttribute("saldoCupones")); // LOG
+
+        // Continuar con la cadena de filtros (permitir que la petición llegue al JSP)
+        chain.doFilter(request, response);
+    }
+
+    private Integer obtenerSaldoCuponesUsuario(String usuario) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Integer saldo = null;
+
+        try {
+            connection = AccesoBD.getConnection();
+            if (connection != null) {
+                String sql = "SELECT saldo_cupones FROM usuario WHERE usuario = ?";
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, usuario);
+                resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    saldo = resultSet.getInt("saldo_cupones");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            AccesoBD.closeConnection(resultSet, preparedStatement, connection);
+        }
+        return saldo;
+    }
+
+    public void destroy() {
+        // No es necesario realizar ninguna limpieza por ahora
+    }
+}

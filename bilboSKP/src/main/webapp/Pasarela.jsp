@@ -1,0 +1,230 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasarela de Pagos - BilboSKP</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/Pasarela.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+    <div class="logo-container">
+        <a href="Index.jsp"><img src="img/bilboskp-high-resolution-logo-removebg-preview.png"></a>
+
+        <div class="language-selector">
+                <a href="?lang=es" title="Español">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/1200px-Flag_of_Spain.svg.png" alt="Bandera de España">
+                </a>
+                <a href="?lang=en" title="English">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg/1200px-Flag_of_the_United_Kingdom_%283-5%29.svg.png" alt="Bandera del Reino Unido">
+                </a>
+            </div>
+        </div>
+
+    <nav>
+        <a href="EscapeRooms.jsp">Jugar</a>
+        <a href="OrganizarPartida.jsp">Organizar Partida</a>
+        <%
+            String tipoUsuarioNav = (String) request.getAttribute("tipoUsuario");
+            if (tipoUsuarioNav != null && tipoUsuarioNav.equals("centro")) {
+        %>
+            <a href="SolicitarCupones.jsp">Solicitar cupones</a>
+        <%
+            } else {
+        %>
+            <a href="Packcupones.jsp">Comprar cupones</a>
+            <a href="DevolverCupones.jsp">Devolver cupones</a>
+        <%
+            }
+        %>
+        <a href="QuienesSomos.jsp">Quiénes Somos</a>
+        <a href="Ayuda.jsp">Ayuda</a>
+
+        <%
+            Integer idRolUsuarioNav = (Integer) request.getAttribute("idRol");
+            Integer idCentroSesionNav = (Integer) request.getAttribute("idCentroSesion");
+
+            // Mostrar "Registrar Centro" solo si el usuario no está logueado como centro y es un administrador (idRol 2)
+            if (idCentroSesionNav == null && idRolUsuarioNav != null && idRolUsuarioNav.equals(2)) {
+        %>
+            <a href="CentroRegistro.jsp">Registrar Centro</a>
+        <%
+            }
+        %>
+    </nav>
+
+<div class="botones">
+    <%
+        String nombreSesion = (String) request.getAttribute("nombreSesion");
+        String tipoUsuario = (String) request.getAttribute("tipoUsuario");
+        Integer saldoCupones = (Integer) request.getAttribute("saldoCupones");
+
+        if (nombreSesion != null && !nombreSesion.isEmpty()) {
+            if (tipoUsuario != null && tipoUsuario.equals("usuario")) {
+    %>
+                <span class="nombre-usuario">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutServlet'">Cerrar Sesión</button>
+    <%
+            } else if (tipoUsuario != null && tipoUsuario.equals("centro")) {
+    %>
+                <span class="nombre-centro">Bienvenido, <%= nombreSesion %> (<%= saldoCupones != null ? saldoCupones : 0 %> cupones)</span>
+                <button onclick="window.location.href='LogoutCentroServlet'">Cerrar Sesión</button>
+    <%
+            }
+        } else {
+    %>
+        <button class= "registrarse" onclick="window.location.href='Registrar.jsp'">Registrarse</button>
+        <button onclick="window.location.href='login.jsp'">Iniciar Sesion</button>
+    <%
+        }
+    %>
+</div>
+    </header>
+
+<main>
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <h2>Completar Pago</h2>
+            <a href="#" class="back-link" onclick="window.history.back(); return false;">← Volver a los planes</a>
+        </div>
+
+        <div class="checkout-content">
+            <div class="order-summary">
+                <h3>Resumen del pedido</h3>
+
+                <%
+                    String planNombreMostrar = request.getParameter("planNombre");
+                    String planPrecioMostrar = request.getParameter("planPrecio");
+                    String cantidadCuponesPlan = request.getParameter("cantidadCuponesPlan");
+                %>
+
+                <% if (planNombreMostrar != null && !planNombreMostrar.isEmpty()) { %>
+                    <h4><%= planNombreMostrar %></h4>
+                <% } %>
+
+                <% if (planPrecioMostrar != null && !planPrecioMostrar.isEmpty()) { %>
+                    <div class="selected-plan">
+                        <div class="plan-details">
+                            <div class="plan-price"><%= planPrecioMostrar %></div>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <p>No se ha seleccionado ningún plan.</p>
+                <% } %>
+
+                <% if (cantidadCuponesPlan != null && !cantidadCuponesPlan.isEmpty()) { %>
+                    <p><strong>Incluye:</strong> <%= cantidadCuponesPlan %> cupones 🎟️</p>
+                <% } %>
+            </div>
+
+            <div class="payment-form-container">
+                <h3>Información de pago</h3>
+
+                <form id="payment-form" class="payment-form" action="ProcesarPagoServlet" method="post">
+                    <div class="form-section">
+                        <h4>Datos personales</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Nombre completo</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Correo electrónico</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">Teléfono</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Datos de la tarjeta</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="card-number">Número de tarjeta</label>
+                                <div class="card-input-container">
+                                    <input type="text" id="card-number" name="card-number" placeholder="1234 5678 9012 3456" required>
+                                    <div class="card-icons">
+                                        <span class="card-icon visa">Visa</span>
+                                        <span class="card-icon mastercard">MC</span>
+                                        <span class="card-icon amex">Amex</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row two-columns">
+                            <div class="form-group">
+                                <label for="expiry">Fecha de expiración</label>
+                                <input type="text" id="expiry" name="expiry" placeholder="MM/AA" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">Código de seguridad (CVV)</label>
+                                <input type="text" id="cvv" name="cvv" placeholder="123" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="card-name">Nombre en la tarjeta</label>
+                                <input type="text" id="card-name" name="card-name" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-actions">
+                        <input type="hidden" name="planNombre" value="<%= planNombreMostrar %>">
+                        <input type="hidden" name="planPrecio" value="<%= planPrecioMostrar %>">
+                        <input type="hidden" name="cantidadCupones" value="<%= cantidadCuponesPlan %>">
+                        <button type="submit" class="pay-button">Pagar</button>
+                        <div class="secure-payment">
+                            <span class="lock-icon">🔒</span> Pago seguro con cifrado SSL
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>BilboSKP</h3>
+                    <p>La mejor plataforma de escape rooms en Bilbao. Vive la aventura con nosotros.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="Index.jsp">Inicio</a></li>
+                        <li><a href="QuienesSomos.jsp">Quiénes Somos</a></li>
+                        <li><a href="EscapeRooms.jsp">Salas de Escape</a></li>
+                        <li><a href="Ayuda.jsp">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li>Email: skpbilbo@gmail.com</li>
+                        <li>Dirección: Calle Principal 123, Bilbao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BilboSKP. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

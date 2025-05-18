@@ -1,0 +1,336 @@
+:root {
+    --simple-color: #5e4fb0;
+    --savings-color: #5b5fb9;
+    --family-color: #b05050;
+    --text-color: #333;
+    --light-text: #fff;
+    --background: #f5f7fa;
+    --card-bg: #fff;
+    --border-color: #e0e0e0;
+    --border-radius: 8px;
+    --input-bg: #f9f9f9;
+    --input-border: #ddd;
+    --input-focus: #5b5fb9;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+	font-family: "Ubuntu", sans-serif;
+    font-weight: 500;
+  	font-style: normal;
+  	background-repeat: no-repeat;
+ 	background-size: cover;
+  	background-attachment: fixed;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.accessibility-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+header nav a {
+    text-decoration: none;
+    color: #333;
+    margin-left: 20px;
+    font-weight: bold;
+}
+
+header nav a:hover {
+    color: #4386ce;
+}
+
+main {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.checkout-container {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.checkout-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.checkout-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.back-link {
+    color: var(--savings-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.3s;
+}
+
+.back-link:hover {
+    opacity: 0.8;
+}
+
+.checkout-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    padding: 1.5rem;
+}
+
+/* Resumen del pedido */
+.order-summary {
+    padding-right: 1.5rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.order-summary h3 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.selected-plan {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.plan-header {
+    padding: 1rem;
+    color: var(--light-text);
+}
+
+.plan-ahorro .plan-header {
+    background-color: var(--savings-color);
+}
+
+.plan-simple .plan-header {
+    background-color: var(--simple-color);
+}
+
+.plan-familiar .plan-header {
+    background-color: var(--family-color);
+}
+
+.plan-header h4 {
+    margin-bottom: 0.5rem;
+}
+
+.plan-details {
+    padding: 1rem;
+    background-color: #f9f9f9;
+}
+
+.plan-price {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.plan-feature {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Formulario de pago */
+.payment-form-container h3 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.form-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-section h4 {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #555;
+}
+
+.form-row {
+    margin-bottom: 1rem;
+}
+
+.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.form-group input {
+    padding: 0.8rem;
+    border: 1px solid var(--input-border);
+    border-radius: var(--border-radius);
+    background-color: var(--input-bg);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 2px rgba(91, 95, 185, 0.2);
+}
+
+.card-input-container {
+    position: relative;
+}
+
+.card-icons {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 5px;
+}
+
+.card-icon {
+    font-size: 0.7rem;
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: white;
+}
+
+.visa {
+    background-color: #1a1f71;
+}
+
+.mastercard {
+    background-color: #eb001b;
+}
+
+.amex {
+    background-color: #006fcf;
+}
+
+.payment-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pay-button {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--savings-color);
+    color: var(--light-text);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pay-button:hover {
+    background-color: #4a4e96;
+}
+
+.secure-payment {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    background-color: #fff;
+    border-top: 1px solid #eee;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    nav ul {
+        margin-top: 1rem;
+    }
+    
+    nav ul li {
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+    
+    .checkout-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .order-summary {
+        padding-right: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    nav ul li {
+        margin: 0.5rem 0;
+    }
+    
+    .two-columns {
+        grid-template-columns: 1fr;
+    }
+    
+    .checkout-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .back-link {
+        margin-top: 0.5rem;
+    }
+}

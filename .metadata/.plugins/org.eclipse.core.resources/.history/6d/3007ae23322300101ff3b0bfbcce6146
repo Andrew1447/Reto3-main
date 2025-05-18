@@ -1,0 +1,63 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Devolución de Cupones</title>
+</head>
+<body>
+    <h1>Devolución de Cupones</h1>
+
+    <c:if test="${not empty error}">
+        <div style="color: red;">
+            <p>${error}</p>
+        </div>
+    </c:if>
+
+    <form action="ProcesarDevolucionServlet" method="post">
+        <table>
+            <thead>
+                <tr>
+                    <th>Seleccionar</th>
+                    <th>Usuario</th>
+                    <th>Fecha de Compra</th>
+                    <th>Cantidad</th>
+                    <th>Fecha de Reembolso</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach var="cupon" items="${listaDeCupones}">
+                    <c:if test="${empty cupon.fechaReembolso}">
+                        <tr>
+                            <td><input type="checkbox" name="cuponesSeleccionados" value="${cupon.fechaCompra}"></td>
+                            <td>${cupon.usuario}</td>
+                            <td>
+                                <fmt:formatDate value="${cupon.fechaCompra}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                            </td>
+                            <td>${cupon.cantidad}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${not empty cupon.fechaReembolso}">
+                                        <fmt:formatDate value="${cupon.fechaReembolso}" pattern="yyyy-MM-dd"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        Pendiente
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
+                    </c:if>
+                </c:forEach>
+            </tbody>
+        </table>
+        <br>
+        <input type="hidden" name="usuario" value="${usuarioLogueado}">
+        <button type="submit">Solicitar Devolución</button>
+    </form>
+
+    <a href="Index.jsp">Volver al Inicio</a>
+
+    <%-- Asegúrate de tener una lista de cupones en el scope de la request llamada 'listaDeCupones' --%>
+</body>
+</html>
